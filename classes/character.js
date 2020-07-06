@@ -6,7 +6,8 @@ const directions = {
 }
 
 class Character {
-    constructor(name, positionCm, sizeCm, moveSpeedCm, imageName, tool) {
+    constructor(name, positionCm, sizeCm, moveSpeedCm, imageName,
+        mainItem, secondaryItem) {
         this.name = name;
         this.positionCm = new p5.Vector(positionCm.x, positionCm.y);
         this.sizeCm = new p5.Vector(sizeCm.x, sizeCm.y);
@@ -14,14 +15,20 @@ class Character {
         this.imageName = imageName;
 
         this.direction = directions.right;
-        this.equip(tool);
+
+        this.equipMain(mainItem);
+        this.equipSecondary(secondaryItem);
     }
 
     // Callables
     // ---------
 
-    equip(tool) {
-        this.crntTool = tool;
+    equipMain(item) {
+        this.mainItem = item;
+    }
+
+    equipSecondary(item) {
+        this.secondaryItem = item;
     }
 
     mine(blocks) {
@@ -30,7 +37,7 @@ class Character {
         for (var blockIdx = 0; blockIdx < touchingBlocks.length; blockIdx ++) {
             var block = touchingBlocks[blockIdx];
             if (! block.isExcavated) {
-                block.hit(this.crntTool, blockHitAmount);
+                block.hit(this.mainItem, blockHitAmount);
             }
         }  
     }
@@ -156,7 +163,7 @@ class Character {
     getBlocksBeingMined(blocks) {
         var blocksBeingMined = [];
 
-        var collisionBox = this.makeToolCollisionBox();
+        var collisionBox = this.makeMainItemCollisionBox();
 
         for (var blockIdx = 0; blockIdx < blocks.length; blockIdx ++) {
             var block = blocks[blockIdx];
@@ -183,18 +190,18 @@ class Character {
         return blocksBeingMined;
     }
 
-    makeToolCollisionBox() {
-        var toolCenterPos = this.getToolCenterPos();
-        var toolSize = this.getToolSize();
+    makeMainItemCollisionBox() {
+        var mainItemCenterPos = this.getMainItemCenterPos();
+        var mainItemSize = this.getMainItemHitBoxSize();
 
         var collisionBox = {
-            positionCm : toolCenterPos,
-            sizeCm : toolSize
+            positionCm : mainItemCenterPos,
+            sizeCm : mainItemSize
         }
         return collisionBox;
     }
 
-    getToolCenterPos() {
+    getMainItemCenterPos() {
         var thisCenter = {
             x : this.positionCm.x + this.sizeCm.x / 2,
             y : this.positionCm.y + this.sizeCm.y / 2
@@ -203,21 +210,21 @@ class Character {
         switch (this.direction) {
             case directions.right:
                 var positionCm = new p5.Vector(thisCenter.x, 
-                    thisCenter.y - (this.crntTool.hitBoxSizeCm.y / 2));
+                    thisCenter.y - (this.mainItem.hitBoxSizeCm.y / 2));
                 return positionCm;
 
             case directions.left:
-                var positionCm = new p5.Vector(thisCenter.x - this.crntTool.hitBoxSizeCm.x, 
-                    thisCenter.y - (this.crntTool.hitBoxSizeCm.y / 2));
+                var positionCm = new p5.Vector(thisCenter.x - this.mainItem.hitBoxSizeCm.x, 
+                    thisCenter.y - (this.mainItem.hitBoxSizeCm.y / 2));
                 return positionCm;
 
             case directions.up:
-                var positionCm = new p5.Vector(thisCenter.x - (this.crntTool.hitBoxSizeCm.y / 2),
-                    thisCenter.y - this.crntTool.hitBoxSizeCm.x);
+                var positionCm = new p5.Vector(thisCenter.x - (this.mainItem.hitBoxSizeCm.y / 2),
+                    thisCenter.y - this.mainItem.hitBoxSizeCm.x);
                 return positionCm;
             
             case directions.down:
-                var positionCm = new p5.Vector(thisCenter.x - (this.crntTool.hitBoxSizeCm.y / 2),
+                var positionCm = new p5.Vector(thisCenter.x - (this.mainItem.hitBoxSizeCm.y / 2),
                     thisCenter.y);
                 return positionCm;
             
@@ -226,22 +233,22 @@ class Character {
         }
     }
 
-    getToolSize() {
+    getMainItemHitBoxSize() {
         switch (this.direction) {
             case directions.right:
-                var sizeCm = new p5.Vector(this.crntTool.hitBoxSizeCm.x, this.crntTool.hitBoxSizeCm.y);
+                var sizeCm = new p5.Vector(this.mainItem.hitBoxSizeCm.x, this.mainItem.hitBoxSizeCm.y);
                 return sizeCm;
 
             case directions.left:
-                var sizeCm = new p5.Vector(this.crntTool.hitBoxSizeCm.x, this.crntTool.hitBoxSizeCm.y)
+                var sizeCm = new p5.Vector(this.mainItem.hitBoxSizeCm.x, this.mainItem.hitBoxSizeCm.y)
                 return sizeCm;
             
             case directions.up:
-                var sizeCm = new p5.Vector(this.crntTool.hitBoxSizeCm.y, this.crntTool.hitBoxSizeCm.x);
+                var sizeCm = new p5.Vector(this.mainItem.hitBoxSizeCm.y, this.mainItem.hitBoxSizeCm.x);
                 return sizeCm;
             
             case directions.down:
-                var sizeCm = new p5.Vector(this.crntTool.hitBoxSizeCm.y, this.crntTool.hitBoxSizeCm.x);
+                var sizeCm = new p5.Vector(this.mainItem.hitBoxSizeCm.y, this.mainItem.hitBoxSizeCm.x);
                 return sizeCm;
             
             default:
@@ -249,8 +256,8 @@ class Character {
         }   
     }
     
-    getToolAngle() {
-        // return an angle in degrees for how to rotate the tool for drawing
+    getMainItemAngle() {
+        // return an angle in degrees for how to rotate the main item for drawing
 
         var angles = {};
         angles[directions.left] = 180;
@@ -330,23 +337,23 @@ class Character {
             this.sizeCm.x, this.sizeCm.y);
         pop();
 
-        this.drawTool(translationCm);
+        this.drawMainItem(translationCm);
     }
 
-    drawTool(translationCm) {
+    drawMainItem(translationCm) {
         push();
 
-        var toolAngle = this.getToolAngle();
+        var mainItemAngle = this.getMainItemAngle();
 
         translate(cWidth / 2, cHeight / 2);
         scale(scaleMult);
 
-        rotate(toolAngle);
-        translate(0, -this.crntTool.imageSizeCm.y / 2);
+        rotate(mainItemAngle);
+        translate(0, -this.mainItem.imageSizeCm.y / 2);
         
         noStroke();
-        image(images[this.crntTool.imageName], 0, 0,
-            this.crntTool.imageSizeCm.x, this.crntTool.imageSizeCm.y);
+        image(images[this.mainItem.imageName], 0, 0,
+            this.mainItem.imageSizeCm.x, this.mainItem.imageSizeCm.y);
 
         pop();
     }

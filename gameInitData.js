@@ -14,12 +14,13 @@ const characterSizeCm = new p5.Vector(30, 50);
 const characterSpeed = 3;
 const characterImageNames = 'characterIdle';
 
-const oldestCompatibleVersion = 6;
-const crntVersion = 6;
+const oldestCompatibleVersion = 7;
+const crntVersion = 7;
 
 function startNewGame() {
     var blocks = makeTerrain(mapRows, mapCols);
-    var tool = new Tool('Pickaxe', 0.5, new p5.Vector(30, 10), new p5.Vector(30, 30), 'pickaxe');
+    var tool = new Tool('Pickaxe', 10, new p5.Vector(30, 30),
+        'pickaxe', 0.5, new p5.Vector(30, 10));
 
     var character = new Character(characterName, characterStartPos, 
         characterSizeCm, characterSpeed, characterImageNames, tool);

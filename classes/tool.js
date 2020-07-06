@@ -1,9 +1,8 @@
-class Tool {
-    constructor(name, hitPower, hitBoxSizeCm, imageSizeCm, imageName) {
-        this.name = name;
+class Tool extends Item {
+    constructor(name, weight, imageSizeCm, imageName,
+        hitPower, hitBoxSizeCm) {
+        super(name, weight, imageSizeCm, imageName);
         this.hitPower = hitPower;
         this.hitBoxSizeCm = hitBoxSizeCm;
-        this.imageSizeCm = imageSizeCm;
-        this.imageName = imageName;
     }
 }

@@ -41,6 +41,7 @@ function loadBlocks(gameData) {
 function loadCharacter(gameData) {
     var oldCharacter = gameData.character;
     var newCharacter = new Character(oldCharacter.name, oldCharacter.positionCm,
-        oldCharacter.sizeCm, oldCharacter.moveSpeedCm, oldCharacter.imageName, oldCharacter.crntTool);
+        oldCharacter.sizeCm, oldCharacter.moveSpeedCm, oldCharacter.imageName,
+            oldCharacter.mainItem, oldCharacter.secondaryItem);
     return newCharacter;
 }

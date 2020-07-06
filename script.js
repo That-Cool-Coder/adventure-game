@@ -1,14 +1,6 @@
-const widthCm = 800;
-const heightCm = 500;
+// (width cm and height cm are in canvasInfo.js)
 
-const fps = 60; // frames per second
-
-// what fraction of the viewport is taken up by the game window in both width and height
-const viewportSizeTaken = 0.95;
-
-// technically this should consider both width and height...
-// ...but this is a prototype so it doesn't matter
-const scaleMult = getViewportHeight() / heightCm * viewportSizeTaken;
+const scaleMult = findScaleMult();
 
 const cWidth = scaleMult * widthCm;
 const cHeight = scaleMult * heightCm;
@@ -27,7 +19,7 @@ const imageUrls = {
 
     bgImage : 'images/bgImage.png',
 
-    titleScreenImg : 'images/titleScreenImg.png'
+    titleScreenBg : 'images/titleScreenBg.png'
 }
 
 var images = {}; // object to hold all of the images used in the game (in p5-format)
@@ -57,8 +49,9 @@ function setup() {
 function goToTitleScreen() {
     draw = () => {
         background(0);
-        titleScreen.draw();
+        titleScreen.update();
     }
+    titleScreen.reset();
     crntButtonChecks = () => titleScreen.crntButtonChecks();
 }
 
@@ -78,24 +71,27 @@ function startGame(gameToStart) {
     }
 }
 
-function mousePressed() {
+function startUnnamedGame() {
+    // If there's a saved game, load it
+    if (loadGame('unnamedGame') !== null) {
+        startGame(loadGame('unnamedGame'));
+    }
+    // Else make a new one
+    else {
+        startNewGame();
+    }
+}
+
+function mouseReleased() {
     crntButtonChecks();
 }
 
 // Make title screen and set it to the current screen
-var titleScreen = new TitleScreen(fps, gameForTitleScreenJSON, 'startGame');
+var titleScreen = new TitleScreen(fps, 'titleScreenBg', 
+    titleScreenBgImgSize, 'startUnnamedGame');
 
 var draw;
 var crntButtonChecks;
 var game;
 
-
-
-// If there's a saved game, load it
-if (loadGame('unnamedGame') !== null) {
-    startGame(loadGame('unnamedGame'));
-}
-// Else make a new one
-else {
-    startNewGame();
-}
+goToTitleScreen();

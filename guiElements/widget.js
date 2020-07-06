@@ -78,17 +78,21 @@ class Widget {
         }
     }
 
-    isBeingClicked() {
-        var posScaled = {
-            x : this.topLeftPos.x * this.scaleMult,
-            y : this.topLeftPos.y * this.scaleMult
+    mouseHovering(translation=new p5.Vector(0, 0)) {
+        var posScaledAndTranslated = {
+            x : (this.topLeftPos.x + translation.x) * this.scaleMult,
+            y : (this.topLeftPos.y + translation.y) * this.scaleMult
         };
 
         var sizeScaled = {
             x : this.size.x * this.scaleMult,
             y : this.size.y * this.scaleMult
         }
-        if (this.userClickingInRect(posScaled, sizeScaled)) {
+        return this.mouseInRect(posScaledAndTranslated, sizeScaled);
+    }
+
+    isBeingClicked(translation=new p5.Vector(0, 0)) {
+        if (this.mouseHovering(translation) && mouseIsPressed) {
             return true;
         }
         else {
@@ -96,7 +100,7 @@ class Widget {
         }
     }
 
-    // Warning draw function in case a extending widget with no other draw is called
+    // Warning draw function in case an extending widget with no other draw is called
     draw() {
         console.warn('Warning: draw() called in a non-drawable widget');
         console.trace();

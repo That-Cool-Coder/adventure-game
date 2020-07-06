@@ -48,14 +48,19 @@ class Panel extends Widget {
         this[name] = child;
     }
 
-    draw() {
+    draw(translation=new p5.Vector(0, 0)) {
         push();
 
         scale(this.scaleMult);
 
-        if (this.borderColor !== null) {
+        translate(translation);
+
+        if (this.borderColor !== null && this.borderWidth !== 0) {
             stroke(this.borderColor);
             strokeWeight(this.borderWidth);
+        }
+        else {
+            noStroke();
         }
 
         if (this.bgColor !== null) {
@@ -69,6 +74,6 @@ class Panel extends Widget {
 
         pop();
 
-        this.children.forEach(child => child.draw());
+        this.children.forEach(child => child.draw(translation));
     }
 }

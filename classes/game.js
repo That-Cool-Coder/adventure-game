@@ -225,7 +225,7 @@ class Game {
 
         for (var msgIdx = 0; msgIdx < this.messages.length; msgIdx ++) {
             var message = this.messages[msgIdx];
-            text(message.text, 100, 50 + (msgIdx * messageSize * 1.5));
+            text(message.text, 100, 25 + (msgIdx * messageSize * 1.5));
         }
 
         pop();
@@ -243,16 +243,16 @@ class Game {
     }
 
     pausedButtonChecks() {
-        if (this.pauseMenu.unpauseButton.isBeingClicked()) {
+        if (this.pauseMenu.unpauseButton.mouseHovering()) {
             this.togglePause();
         }
-        if (this.pauseMenu.exitButton.isBeingClicked()) {
+        if (this.pauseMenu.exitButton.mouseHovering()) {
             this.exitGame();
         }
     }
 
     checkHudButtons() {
-        if (this.hud.pauseButton.isBeingClicked(scaleMult)) {
+        if (this.hud.pauseButton.mouseHovering()) {
             this.togglePause();
         }
     }

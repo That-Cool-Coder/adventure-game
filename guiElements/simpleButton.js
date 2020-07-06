@@ -3,13 +3,15 @@ class SimpleButton extends Widget {
         super(topLeftPos, size, text, textSize, scaleMult);
     }
 
-    draw() {
+    draw(translation=new p5.Vector(0, 0)) {
         push();
 
         scale(this.scaleMult);
 
+        translate(translation);
+
         // Draw button body
-        if (this.borderColor !== null) {
+        if (this.borderColor !== null && this.borderWidth !== 0) {
             stroke(this.borderColor);
             strokeWeight(this.borderWidth);
         }
@@ -26,9 +28,12 @@ class SimpleButton extends Widget {
         // Draw button text
         textSize(this.textSize);
         fill(this.textColor);
-        if (this.textOutlineColor !== null) {
+        if (this.textOutlineColor !== null && this.textOutlineWidth !== 0) {
             stroke(this.textOutlineColor);
             strokeWeight(this.textOutlineWidth);
+        }
+        else {
+            noStroke();
         }
 
         var centerPosX = this.topLeftPos.x + this.size.x / 2;

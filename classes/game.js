@@ -1,5 +1,5 @@
 class Game {
-    constructor(name, bgImageName, character, exitFuncName, mainThemeColor, 
+    constructor(name, bgImageName, character, exitFunc, mainThemeColor, 
         secondaryColor, version=oldestCompatibleVersion, blocks=[], timeIncrement=1/36000,
         timeOfDay=0.5, autoSaveInterval=600) {
 
@@ -7,7 +7,7 @@ class Game {
         this.bgImageName = bgImageName;
         this.character = character;
 
-        this.exitFuncName = exitFuncName;
+        this.exitFunc = exitFunc;
 
         this.mainThemeColor = mainThemeColor;
         this.secondaryColor = secondaryColor;
@@ -25,11 +25,13 @@ class Game {
 
         this.crntDraw = this.updateExploring.bind(this);
         this.crntButtonChecks = this.exploringButtonChecks.bind(this);
+        this.crntOnPressKeybinds = this.exploringKeybinds.bind(this);
 
         this.messages = [];
 
         this.setupHud();
         this.setupPauseMenu();
+        this.setupInventoryMenu();
     }
 
     // Setup
@@ -68,6 +70,28 @@ class Game {
         this.pauseMenu.linkChild(exitBtn, 'exitButton'); // see unpause button explanation
     }
 
+    setupInventoryMenu() {
+        // Setup panel for inventory-showing menu
+        var inventoryMenuSize = new p5.Vector(widthCm * 0.7, heightCm * 0.75);
+        var marginX = (widthCm - inventoryMenuSize.x) / 2;
+        var marginY = (heightCm - inventoryMenuSize.y) / 2;
+
+        this.inventoryMenu = new Panel(new p5.Vector(marginX, marginY), 
+            inventoryMenuSize, layoutStyles.verticalRow, scaleMult);
+        this.inventoryMenu.setBgColor(this.secondaryColor);
+
+        var heading = new Label(new p5.Vector(0, 0),
+            'Inventory', 25, scaleMult);
+        heading.setTextColor([100, 100, 100]);
+        this.inventoryMenu.addChild(heading, 40);
+
+        var counter = new Label(new p5.Vector(0, 0),
+            '0 items in inventory', 15, scaleMult);
+        counter.setTextColor([100, 100, 100]);
+        this.inventoryMenu.addChild(counter, 40);
+        this.inventoryMenu.linkChild(counter, 'itemCounter');
+    }
+
     // Small callables
     // ---------------
 
@@ -93,10 +117,10 @@ class Game {
         }
     }
 
-    exitGame() {
+    exit() {
         saveGame(this);
 
-        eval(this.exitFuncName + '()');
+        eval(this.exitFunc);
     }
 
     // Main loops
@@ -131,11 +155,29 @@ class Game {
         this.drawNightOverlay();
         this.drawFrameRate();
 
-        // May not keep these two
+        // May not keep this
         this.drawMessages();
 
         // Drawing menus
         this.drawPauseMenu();
+    }
+
+    updateShowingInventory() {
+        // Loop for when the game is showing the character's inventory
+
+        this.inventoryMenu.itemCounter.setText(this.character.inventory.items.length + 
+            ' items in inventory');
+        
+        // Drawing game content
+        this.drawBg();
+        this.drawBlocks();
+        this.character.draw(); // may not be necessary - character may be behind menu
+        this.drawNightOverlay();
+        this.drawInventoryMenu();
+        this.drawFrameRate();
+
+        // May not keep this
+        this.drawMessages();
     }
 
     // Drawing the game
@@ -210,8 +252,6 @@ class Game {
         }
     }
 
-    // Handling the user interface
-
     drawMessages() {
         var messageSize = 20;
 
@@ -235,6 +275,10 @@ class Game {
         this.pauseMenu.draw();
     }
 
+    drawInventoryMenu() {
+        this.inventoryMenu.draw();
+    }
+
     // Button click checking
     // ---------------------
 
@@ -247,13 +291,38 @@ class Game {
             this.togglePause();
         }
         if (this.pauseMenu.exitButton.mouseHovering()) {
-            this.exitGame();
+            this.exit();
         }
+    }
+
+    showingInventoryButtonChecks() {
+        doNothing();
     }
 
     checkHudButtons() {
         if (this.hud.pauseButton.mouseHovering()) {
             this.togglePause();
+        }
+    }
+
+    // Keybinds
+    // --------
+
+    exploringKeybinds() {
+        if (keyIsDown(73)) { // i
+            this.crntDraw = this.updateShowingInventory.bind(this);
+            this.crntButtonChecks = this.showingInventoryButtonChecks.bind(this);
+            this.crntOnPressKeybinds = this.showingInventoryKeybinds.bind(this);
+            this.paused = true;
+        }
+    }
+
+    showingInventoryKeybinds() {
+        if (keyIsDown(73)) { // i
+            this.crntDraw = this.updateExploring.bind(this);
+            this.crntButtonChecks = this.exploringButtonChecks.bind(this);
+            this.crntOnPressKeybinds = this.exploringKeybinds.bind(this);
+            this.paused = false;
         }
     }
 

@@ -10,35 +10,20 @@ class SimpleButton extends Widget {
 
         translate(translation);
 
-        // Draw button body
-        if (this.borderColor !== null && this.borderWidth !== 0) {
-            stroke(this.borderColor);
-            strokeWeight(this.borderWidth);
-        }
-
-        if (this.bgColor !== null) {
-            fill(this.bgColor);
-        }
-        else {
-            noFill();
-        }
+        this.setupBorder();
+        this.setupFill();
 
         rect(this.topLeftPos.x, this.topLeftPos.y, this.size.x, this.size.y);
-        
-        // Draw button text
-        textSize(this.textSize);
-        fill(this.textColor);
-        if (this.textOutlineColor !== null && this.textOutlineWidth !== 0) {
-            stroke(this.textOutlineColor);
-            strokeWeight(this.textOutlineWidth);
-        }
-        else {
-            noStroke();
-        }
 
         var centerPosX = this.topLeftPos.x + this.size.x / 2;
         var centerPosY = this.topLeftPos.y + this.size.y / 2;
+
+        this.setupTextSize();
+        this.setupTextColor();
+        this.setupTextOutline();
+
         text(this.text, centerPosX, centerPosY);
+        
 
         pop();
     }

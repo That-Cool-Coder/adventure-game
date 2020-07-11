@@ -27,3 +27,7 @@ function calcAccelerationDist(speedChange, acceleration) {
     }
     return dist;
 }
+
+function doNothing() {
+    // Do nothing!
+}

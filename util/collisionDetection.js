@@ -13,7 +13,7 @@ function roughRectRectCollide(rect1Corner, rect1Size, rect2Corner, rect2Size) {
 
     var distSq = (rect2MiddleX - rect1MiddleX) ** 2 + (rect2MiddleY - rect1MiddleY) ** 2;
 
-    if (distSq < rect1Largest ** 2 + rect2Largest ** 2) {
+    if (distSq < (rect1Largest + rect2Largest) ** 2) {
         return true;
     }
     else {

@@ -1,11 +1,12 @@
 var fillInVector = new p5.Vector(0, 0); // vector for temporary use
 
 class TitleScreen {
-    constructor(fps, bgImageName, bgImageSize, startGameFuncName) {
+    constructor(fps, bgImageName, bgImageSize, startGameFunc, newGameFunc) {
         this.bgImageName = bgImageName;
         this.bgImageSize = bgImageSize;
 
-        this.startGameFuncName = startGameFuncName;
+        this.startGameFunc = startGameFunc;
+        this.newGameFunc = newGameFunc;
 
         // 'consts'
 
@@ -72,7 +73,7 @@ class TitleScreen {
             layoutStyles.verticalRow, scaleMult);
         this.playMenu.setBorderWidth(0);
 
-        // Set up back button
+        // Set up start game button
         var startGameButton = new SimpleButton(fillInVector, new p5.Vector(300, 100),
             'Start Game', 50, scaleMult);
         startGameButton.setBorderWidth(3);
@@ -83,6 +84,19 @@ class TitleScreen {
 
         this.playMenu.addChild(startGameButton, 5);
         this.playMenu.linkChild(startGameButton, 'startGameButton');
+
+
+        // Set up new game button
+        var newGameButton = new SimpleButton(fillInVector, new p5.Vector(390, 100),
+            'Start New Game', 50, scaleMult);
+        newGameButton.setBorderWidth(3);
+        newGameButton.setBorderColor(themeColors.secondBrown);
+        newGameButton.setTextOutlineWidth(0);
+        newGameButton.setTextColor([100, 100, 100]);
+        newGameButton.setBgColor(themeColors.mainBrown);
+
+        this.playMenu.addChild(newGameButton, 50);
+        this.playMenu.linkChild(newGameButton, 'newGameButton');
         
         // Set up back button
         var backButton = new SimpleButton(fillInVector, new p5.Vector(120, 50),
@@ -210,7 +224,12 @@ class TitleScreen {
     checkPlayMenuButtons() {
         if (this.playMenu.startGameButton.mouseHovering(this.viewPanCm)) {
             this.startFadeIntoGame().then(() => {
-                eval(this.startGameFuncName + '()');
+                eval(this.startGameFunc);
+            });
+        }
+        if (this.playMenu.newGameButton.mouseHovering(this.viewPanCm)) {
+            this.startFadeIntoGame().then(() => {
+                eval(this.newGameFunc);
             });
         }
         if (this.playMenu.backButton.mouseHovering(this.viewPanCm)) {

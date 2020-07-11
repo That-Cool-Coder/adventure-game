@@ -4,5 +4,6 @@ class Item {
         this.weight = weight;
         this.imageSizeCm = imageSizeCm;
         this.imageName = imageName;
+        this.classNames = ['Item'];
     }
 }

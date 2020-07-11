@@ -4,5 +4,6 @@ class Tool extends Item {
         super(name, weight, imageSizeCm, imageName);
         this.hitPower = hitPower;
         this.hitBoxSizeCm = hitBoxSizeCm;
+        this.classNames.push('Tool');
     }
 }

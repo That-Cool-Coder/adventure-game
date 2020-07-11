@@ -105,4 +105,38 @@ class Widget {
         console.warn('Warning: draw() called in a non-drawable widget');
         console.trace();
     }
+
+    setupFill() {
+        if (this.bgColor !== null) {
+            fill(this.bgColor);
+        }
+        else {
+            noFill();
+        }
+    }
+
+    setupBorder() {
+        if (this.borderColor !== null && this.borderWidth !== 0) {
+            stroke(this.borderColor);
+            strokeWeight(this.borderWidth);
+        }
+    }
+
+    setupTextColor() {
+        fill(this.textColor);
+    }
+
+    setupTextOutline() {
+        if (this.textOutlineColor !== null && this.textOutlineWidth !== 0) {
+            stroke(this.textOutlineColor);
+            strokeWeight(this.textOutlineWidth);
+        }
+        else {
+            noStroke();
+        }
+    }
+
+    setupTextSize() {
+        textSize(this.textSize);
+    }
 }

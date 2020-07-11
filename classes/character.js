@@ -7,12 +7,14 @@ const directions = {
 
 class Character {
     constructor(name, positionCm, sizeCm, moveSpeedCm, imageName,
-        mainItem, secondaryItem) {
+        mainItem, secondaryItem, inventory) {
         this.name = name;
         this.positionCm = new p5.Vector(positionCm.x, positionCm.y);
         this.sizeCm = new p5.Vector(sizeCm.x, sizeCm.y);
         this.moveSpeedCm = moveSpeedCm; // not a vector
         this.imageName = imageName;
+
+        this.inventory = inventory;
 
         this.direction = directions.right;
 
@@ -37,7 +39,10 @@ class Character {
         for (var blockIdx = 0; blockIdx < touchingBlocks.length; blockIdx ++) {
             var block = touchingBlocks[blockIdx];
             if (! block.isExcavated) {
-                block.hit(this.mainItem, blockHitAmount);
+                var didDestroyBlock = block.hit(this.mainItem, blockHitAmount);
+                if (didDestroyBlock) {
+                    this.inventory.addItems(block.takeResources());
+                }
             }
         }  
     }
@@ -54,6 +59,45 @@ class Character {
         else this.fall(blocks);
 
         this.collideBlocks(blocks);
+    }
+
+    // Drawing
+    // -------
+
+    draw(translationCm=new p5.Vector(0, 0)) {
+        push();
+
+        translate(cWidth / 2, cHeight / 2);
+        scale(scaleMult);
+
+        translate(translationCm);
+
+        noStroke();
+
+        var imageToDraw = images[this.imageName];
+        image(imageToDraw, -this.sizeCm.x / 2, -this.sizeCm.y / 2,
+            this.sizeCm.x, this.sizeCm.y);
+        pop();
+
+        this.drawMainItem(translationCm);
+    }
+
+    drawMainItem(translationCm) {
+        push();
+
+        var mainItemAngle = this.getMainItemAngle();
+
+        translate(cWidth / 2, cHeight / 2);
+        scale(scaleMult);
+
+        rotate(mainItemAngle);
+        translate(0, -this.mainItem.imageSizeCm.y / 2);
+        
+        noStroke();
+        image(images[this.mainItem.imageName], 0, 0,
+            this.mainItem.imageSizeCm.x, this.mainItem.imageSizeCm.y);
+
+        pop();
     }
 
     // 2nd level movement
@@ -290,8 +334,13 @@ class Character {
             this.positionCm.x += this.moveSpeedCm * this.goFasterOnShift(2);
         }
 
-        if (keyIsDown(32)) {
+        if (keyIsDown(90)) { // 'z'
             this.mine(blocks);
+            // this.useMain(blocks);
+        }
+
+        else if (keyIsDown(88)) { // 'x'
+            // this.useSecondary(blocks);
         }
     }
 
@@ -317,45 +366,6 @@ class Character {
                 this.direction = directions.down;
             }
         }
-    }
-
-    // Drawing
-    // -------
-
-    draw(translationCm=new p5.Vector(0, 0)) {
-        push();
-
-        translate(cWidth / 2, cHeight / 2);
-        scale(scaleMult);
-
-        translate(translationCm);
-
-        noStroke();
-
-        var imageToDraw = images[this.imageName];
-        image(imageToDraw, -this.sizeCm.x / 2, -this.sizeCm.y / 2,
-            this.sizeCm.x, this.sizeCm.y);
-        pop();
-
-        this.drawMainItem(translationCm);
-    }
-
-    drawMainItem(translationCm) {
-        push();
-
-        var mainItemAngle = this.getMainItemAngle();
-
-        translate(cWidth / 2, cHeight / 2);
-        scale(scaleMult);
-
-        rotate(mainItemAngle);
-        translate(0, -this.mainItem.imageSizeCm.y / 2);
-        
-        noStroke();
-        image(images[this.mainItem.imageName], 0, 0,
-            this.mainItem.imageSizeCm.x, this.mainItem.imageSizeCm.y);
-
-        pop();
     }
 
     // Misc

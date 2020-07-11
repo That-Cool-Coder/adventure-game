@@ -8,16 +8,23 @@ const cHeight = scaleMult * heightCm;
 const gameSaveName = 'unnamedGame';
 
 const imageUrls = {
-    dirtBlockNorm : 'images/dirtBlockNorm.png',
-    dirtBlockExcv : 'images/dirtBlockExcv.png',
-    grassBlockNorm : 'images/grassBlockNorm.png',
-    grassBlockExcv : 'images/grassBlockExcv.png',
+    dirtBlockNorm : 'images/blocks/dirtBlockNorm.png',
+    dirtBlockExcv : 'images/blocks/dirtBlockExcv.png',
+    grassBlockNorm : 'images/blocks/grassBlockNorm.png',
+    grassBlockExcv : 'images/blocks/grassBlockExcv.png',
+    stoneBlockNorm : 'images/blocks/stoneBlockNorm.png',
+    stoneBlockExcv : 'images/blocks/stoneBlockExcv.png',
 
-    characterIdle : 'images/characterIdle.png',
+    coal : 'images/resources/coal.png',
 
-    pickaxe : 'images/pickaxe.png',
+    characterIdle : 'images/character/characterIdle.png',
+
+    pickaxe : 'images/tools/pickaxe.png',
 
     bgImage : 'images/bgImage.png',
+
+    grey20Pixel : 'images/colors/grey20.png',
+    seaBluePixel : 'images/colors/seablue.png',
 
     titleScreenBg : 'images/titleScreenBg.png'
 }
@@ -53,6 +60,12 @@ function goToTitleScreen() {
     }
     titleScreen.reset();
     crntButtonChecks = () => titleScreen.crntButtonChecks();
+    crntOnPressKeybinds = doNothing;
+}
+
+function exitGame() {
+    goToTitleScreen();
+    titleScreen.goToPlayMenu();
 }
 
 function startGame(gameToStart) {
@@ -63,18 +76,21 @@ function startGame(gameToStart) {
             game.crntDraw();
         }
         crntButtonChecks = () => game.crntButtonChecks();
+        crntOnPressKeybinds = () => game.crntOnPressKeybinds();
     }
     else {
         console.warn('Warning: Attempted to start null game');
-        console.log('An error most likely occured in saveAndLoad due to an imcompatible' + 
-        ' version')
+        console.log('An error most likely occured in saveAndLoad.js ' +
+        'due to an imcompatible version')
     }
 }
 
 function startUnnamedGame() {
+    // (just a thing for the title screen to start the game, not final)
+
     // If there's a saved game, load it
     if (loadGame('unnamedGame') !== null) {
-        startGame(loadGame('unnamedGame'));
+        loadGame('unnamedGame').then(startGame);
     }
     // Else make a new one
     else {
@@ -86,12 +102,17 @@ function mouseReleased() {
     crntButtonChecks();
 }
 
+function keyPressed() {
+    crntOnPressKeybinds();
+}
+
 // Make title screen and set it to the current screen
 var titleScreen = new TitleScreen(fps, 'titleScreenBg', 
-    titleScreenBgImgSize, 'startUnnamedGame');
+    imageSizesCm.titleScreenBg, 'startUnnamedGame()', 'startNewGame()');
 
 var draw;
 var crntButtonChecks;
+var crntOnPressKeybinds;
 var game;
 
 goToTitleScreen();

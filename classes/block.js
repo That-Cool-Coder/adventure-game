@@ -1,14 +1,20 @@
 class Block {
-    constructor(topLeftPosCm, sizeCm, normImageName, excvImageName, strength=15,
-        maxStrength=strength, isExcavated=false) {
+    constructor(topLeftPosCm, sizeCm, normImageName, excvImageName,
+        resourceContent=[], strength=15, maxStrength=strength,
+        isIndestructible=false, isExcavated=false) {
+        
         this.positionCm = new p5.Vector(topLeftPosCm.x, topLeftPosCm.y);
         this.sizeCm = new p5.Vector(sizeCm.x, sizeCm.y);
         this.strength = strength;
         this.maxStrength = maxStrength;
 
+        this.resourceContent = resourceContent;
+
         this.normImageName = normImageName;
         this.excvImageName = excvImageName;
+
         this.isExcavated = isExcavated;
+        this.isIndestructible = isIndestructible;
 
         this.hitLastFrame = false;
     }
@@ -32,9 +38,15 @@ class Block {
             noStroke();
 
             image(imageToDraw, 0, 0, this.sizeCm.x, this.sizeCm.y);
-
+            // If it needs to look crumbling, translate then draw a second image
+            // Don't just draw one image or gaps appear
             if (this.strength > 0 && this.strength != this.maxStrength) {
-                this.drawWeakeningShape();
+                this.translateForWeakeningEffect();
+                image(imageToDraw, 0, 0, this.sizeCm.x, this.sizeCm.y);
+            }
+
+            if (! this.isExcavated && this.resourceContent.length > 0) {
+                this.drawResourceContent();
             }
 
             pop();
@@ -43,18 +55,31 @@ class Block {
 
     hit(tool, totalBlocksHit=1) {
         // if multiple blocks are being hit, deal a smaller amount of damage to each
-        this.strength -= tool.hitPower / totalBlocksHit;
+        if (! this.isIndestructible) {
+            this.strength -= tool.hitPower / totalBlocksHit;
+        }
 
-        if (this.strength <= 0) {
+        var wasExcavatedNow = false;
+
+        if (this.strength <= 0 && ! this.isExcavated && ! this.isIndestructible) {
             this.strength = 0;
             this.isExcavated = true;
+            wasExcavatedNow = true;
         }
         else {
             this.hitLastFrame = true;
         }
+
+        return wasExcavatedNow;
     }
 
-    drawWeakeningShape() {
+    takeResources() {
+        var resources = this.resourceContent;
+        this.resourceContent = [];
+        return resources;
+    }
+
+    translateForWeakeningEffect() {
         var maxMovement = 3.5;
         
         var damageMult = 1 - (this.strength / this.maxStrength);
@@ -83,9 +108,18 @@ class Block {
             var posY = movement;
         }
 
+        translate(posX, posY);
+    }
+
+    drawResourceContent() {
         noStroke();
-        var imageToDraw = images[this.normImageName];
-        image(imageToDraw, posX, posY, this.sizeCm.x + posX, this.sizeCm.y + posY);
+
+        var marginX = (this.sizeCm.x - imageSizesCm.resourceImage.x) / 2;
+        var marginY = (this.sizeCm.y - imageSizesCm.resourceImage.y) / 2;
+
+        var imageToDraw = images[this.resourceContent[0].imageName];
+        image(imageToDraw, marginX, marginY,
+            imageSizesCm.resourceImage.x, imageSizesCm.resourceImage.y);
     }
 
     willBeOffscreen(viewPanCm) {

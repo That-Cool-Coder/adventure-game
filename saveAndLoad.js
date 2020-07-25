@@ -67,43 +67,38 @@ function deshortenStringifiedGame(stringifiedGame) {
 }
 
 function parseJsonGame(stringifiedGame) {
-    // Turn a stringified game into a full functioning game object
+    // Turn a stringified game into a game object
 
     var gameData = JSON.parse(stringifiedGame);
-    var blocks = loadBlocks(gameData);
-    var wildAnimals = loadWildAnimals(gameData);
-    var character = loadCharacter(gameData);
+    loadBlocks(gameData);
+    loadWildAnimals(gameData);
+    loadCharacter(gameData);
+
+    console.log(makeWildAnimals()[0], gameData.wildAnimals[0])
     
-    var newGame = new Game(gameData.name, gameData.bgImageName, character,
+    // Don't use Object.setPrototypeOf() on game as it has a bunch of highly nested menus
+    // that aren't saved in the JSON and would be a pain to reprototype
+    var newGame = new Game(gameData.name, gameData.bgImageName, gameData.character,
         gameData.exitFunc, gameData.mainThemeColor, gameData.secondaryColor,
-        gameData.version, blocks, gameData.mapSectionXRanges, wildAnimals, gameData.timeIncrement, 
+        gameData.version, gameData.blocks, gameData.mapSectionXRanges,
+        gameData.wildAnimals, gameData.timeIncrement, 
         gameData.timeOfDay, gameData.autoSaveInterval);
     return newGame;
 }
 
 function loadBlocks(gameData) {
     // Give the blocks prototype
-    
-    var newBlocks = [];
     gameData.blocks.forEach(block => {
-        var newBlock = new Block(block.positionCm, block.sizeCm, block.normImageName,
-            block.excvImageName, block.resourceContent, block.strength, block.maxStrength,
-            block.isIndestructible, -block.isExcavated);
-        newBlocks.push(newBlock);
+        Object.setPrototypeOf(block, Block.prototype);
     });
-    return newBlocks;
 }
 
 function loadWildAnimals(gameData) {
-    // Give the blocks prototype
+    // Give the wild animals prototype
     
-    var newWildAnimals = [];
     gameData.wildAnimals.forEach(animal => {
-        var newWildAnimal = new WildAnimal(animal.name, animal.positionCm, animal.sizeCm,
-            animal.moveSpeedCm, animal.imageName, animal.characterDetectDist, animal.attackDamage);
-        newWildAnimals.push(newWildAnimal);
+        Object.setPrototypeOf(animal, WildAnimal.prototype);
     });
-    return newWildAnimals;
 }
 
 function loadCharacter(gameData) {
@@ -111,17 +106,12 @@ function loadCharacter(gameData) {
 
     var oldCharacter = gameData.character;
     var inventory = loadInventory(gameData);
-
-    var newCharacter = new Character(oldCharacter.name, oldCharacter.positionCm,
-        oldCharacter.sizeCm, oldCharacter.moveSpeedCm, oldCharacter.imageName,
-            oldCharacter.mainItem, oldCharacter.secondaryItem, inventory);
-    return newCharacter;
+    Object.setPrototypeOf(oldCharacter, Character.prototype);
 }
 
 function loadInventory(gameData) {
     // Give the inventory a prototype
 
     var oldInventory = gameData.character.inventory;
-    var newInventory = new Inventory(oldInventory.maxWeight, oldInventory.items);
-    return newInventory;
+    return Object.setPrototypeOf(oldInventory, Inventory.prototype);
 }

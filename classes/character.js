@@ -6,13 +6,19 @@ const directions = {
 }
 
 class Character {
-    constructor(name, positionCm, sizeCm, moveSpeedCm, imageName,
+    constructor(name, positionCm, sizeCm, moveSpeedCm, imageName, maxHealth, maxStamina,
         mainItem=null, secondaryItem=null, inventory=null) {
         this.name = name;
         this.positionCm = new p5.Vector(positionCm.x, positionCm.y);
         this.sizeCm = new p5.Vector(sizeCm.x, sizeCm.y);
         this.moveSpeedCm = moveSpeedCm; // not a vector
         this.imageName = imageName;
+
+        this.maxStamina = maxStamina;
+        this.stamina = maxStamina;
+
+        this.maxHealth = maxHealth;
+        this.health = maxHealth;
 
         this.inventory = inventory;
 
@@ -204,21 +210,15 @@ class Character {
         for (var blockIdx = 0; blockIdx < blocks.length; blockIdx ++) {
             var block = blocks[blockIdx];
 
-            // only do the slower check if they are roughly colliding
-            var roughlyColliding = roughRectRectCollide(this.positionCm, this.sizeCm, 
-                block.positionCm, block.sizeCm);
-            if (roughlyColliding) {
+            // this function is documented to work with vector inputs...
+            // ...but I couldn't get that to work
+            var collision = collideRectRect(
+                this.positionCm.x, this.positionCm.y,
+                this.sizeCm.x, this.sizeCm.y,
+                block.positionCm.x, block.positionCm.y,
+                block.sizeCm.x, block.sizeCm.y);
 
-                // this function is documented to work with vector inputs...
-                // ...but I couldn't get that to work
-                var collision = collideRectRect(
-                    this.positionCm.x, this.positionCm.y,
-                    this.sizeCm.x, this.sizeCm.y,
-                    block.positionCm.x, block.positionCm.y,
-                    block.sizeCm.x, block.sizeCm.y);
-
-                if (collision) touchingBlocks.push(block);
-            }
+            if (collision) touchingBlocks.push(block);
         }
         return touchingBlocks;
     }
@@ -231,23 +231,16 @@ class Character {
         for (var blockIdx = 0; blockIdx < blocks.length; blockIdx ++) {
             var block = blocks[blockIdx];
             if (! block.isExcavated) {
-
-                // only do the slower check if they are roughly colliding
-                var roughlyColliding = roughRectRectCollide(collisionBox.positionCm, this.sizeCm, 
-                    block.positionCm, block.sizeCm);
-                if (roughlyColliding) {
+                // this function is documented to work with vector inputs...
+                // ...but I couldn't get that to work
+                var collision = collideRectRect(
+                    collisionBox.positionCm.x, collisionBox.positionCm.y,
+                    collisionBox.sizeCm.x, collisionBox.sizeCm.y,
                     
-                    // this function is documented to work with vector inputs...
-                    // ...but I couldn't get that to work
-                    var collision = collideRectRect(
-                        collisionBox.positionCm.x, collisionBox.positionCm.y,
-                        collisionBox.sizeCm.x, collisionBox.sizeCm.y,
-                        
-                        block.positionCm.x, block.positionCm.y,
-                        block.sizeCm.x, block.sizeCm.y);
+                    block.positionCm.x, block.positionCm.y,
+                    block.sizeCm.x, block.sizeCm.y);
 
-                    if (collision) blocksBeingMined.push(block);
-                }
+                if (collision) blocksBeingMined.push(block);
             }
         }
         return blocksBeingMined;

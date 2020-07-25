@@ -51,8 +51,8 @@ class TitleScreen {
         this.startMenu.setBorderWidth(0);
 
         // Set up play button
-        var playButton = new SimpleButton(fillInVector, new p5.Vector(220, 50),
-            'Play Game', 40, scaleMult);
+        var playButton = new SimpleButton(fillInVector, new p5.Vector(270, 70),
+            'Play Game', 50, scaleMult);
         playButton.setBorderWidth(3);
         playButton.setBorderColor(themeColors.secondBrown);
         playButton.setTextOutlineWidth(0);
@@ -74,7 +74,7 @@ class TitleScreen {
         this.playMenu.setBorderWidth(0);
 
         // Set up start game button
-        var startGameButton = new SimpleButton(fillInVector, new p5.Vector(300, 100),
+        var startGameButton = new SimpleButton(fillInVector, new p5.Vector(300, 70),
             'Start Game', 50, scaleMult);
         startGameButton.setBorderWidth(3);
         startGameButton.setBorderColor(themeColors.secondBrown);
@@ -87,7 +87,7 @@ class TitleScreen {
 
 
         // Set up new game button
-        var newGameButton = new SimpleButton(fillInVector, new p5.Vector(390, 100),
+        var newGameButton = new SimpleButton(fillInVector, new p5.Vector(390, 70),
             'Start New Game', 50, scaleMult);
         newGameButton.setBorderWidth(3);
         newGameButton.setBorderColor(themeColors.secondBrown);

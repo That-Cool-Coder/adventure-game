@@ -1,7 +1,9 @@
 class WildAnimal extends Character {
     constructor(name, positionCm, sizeCm, moveSpeedCm, imageName,
-        characterDetectDist, attackDamage) {
-        super(name, positionCm, sizeCm, moveSpeedCm, imageName, null, null, null);
+        maxHealth, characterDetectDist, attackDamage) {
+
+        super(name, positionCm, sizeCm, moveSpeedCm, imageName, maxHealth, null, null, null, null);
+
         this.attackDamage = attackDamage;
         this.characterDetectDist = characterDetectDist;
     }
@@ -10,7 +12,14 @@ class WildAnimal extends Character {
         var blocks = this.getNearbyBlocks(mapSections);
 
         this.fall(blocks);
-        if (this.nearCharacter(characterToChase)) this.chaseCharacter(characterToChase);
+        if (this.nearCharacter(characterToChase)) {
+            this.chaseCharacter(characterToChase);
+        }
+        if (this.touchingCharacter(characterToChase)) {
+            this.moveAwayFromBlock(characterToChase);
+            this.attackCharacter(characterToChase)
+        }
+
         //this.avoidCliffs(blocks);
         this.collideBlocks(blocks);
     }
@@ -51,13 +60,34 @@ class WildAnimal extends Character {
         this.positionCm.x += speed;
     }
 
+    attackCharacter(character) {
+        // Do damage to the character (assuming that the character is being touched)
+        character.health -= this.attackDamage;
+    }
+
     nearCharacter(character) {
         // If the distance between the center point of this and the center pos...
         // ...of the character is less than the detection distance (using squares for efficiency),
         // then return true
+        
         if (distSq(this.getCenterPos(), character.getCenterPos()) < this.characterDetectDist ** 2) {
             return true;
         }
+        else return false;
+    }
+
+    touchingCharacter(character) {
+        // Return a boolean stating if the animal is touching the character
+
+        // this function is documented to work with vector inputs...
+        // ...but I couldn't get that to work
+        var collision = collideRectRect(
+            this.positionCm.x, this.positionCm.y,
+            this.sizeCm.x, this.sizeCm.y,
+            character.positionCm.x, character.positionCm.y,
+            character.sizeCm.x, character.sizeCm.y);
+        
+        if (collision) return true;
         else return false;
     }
 }

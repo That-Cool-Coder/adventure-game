@@ -5,8 +5,8 @@ const blockSizeCm = 50;
 const mapCols = 150;
 
 const minTerrainHeight = 20;
-const maxTerrainHeight = 25;
-const startTerrainHeight = 23;
+const maxTerrainHeight = 27;
+const startTerrainHeight = 24;
 
 const startStoneDepth = 11;
 const maxStoneDepth = 18;
@@ -25,13 +25,15 @@ const gameBgImageNames = 'bgImage';
 
 // Character
 const characterName = 'Pete';
-const characterStartPos = new p5.Vector(0, -23 * blockSizeCm);
+const characterStartPos = new p5.Vector(0, -startTerrainHeight * blockSizeCm);
 const characterSizeCm = new p5.Vector(30, 50);
 const characterSpeed = 3;
 const characterImageNames = 'characterIdle';
+const characterMaxHealth = 100;
+const characterMaxStamina = 100;
 
-const oldestCompatibleVersion = 16;
-const crntVersion = 16;
+const oldestCompatibleVersion = 17;
+const crntVersion = 17;
 
 const mapSectionWidthCm = 500;
 const mapSectionOverlapCm = 100;
@@ -50,8 +52,8 @@ function startNewGame() {
     var inventory = new Inventory(100, 50);
 
     var character = new Character(characterName, characterStartPos, 
-        characterSizeCm, characterSpeed, characterImageNames,
-        tool, tool, inventory);
+        characterSizeCm, characterSpeed, characterImageNames, characterMaxHealth,
+        characterMaxStamina, tool, tool, inventory);
 
     game = new Game(gameSaveName, gameBgImageNames, character, 
         'exitGame()', themeColors.mainBrown, themeColors.secondBrown,

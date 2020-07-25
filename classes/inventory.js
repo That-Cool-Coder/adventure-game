@@ -1,6 +1,7 @@
 class Inventory {
-    constructor(maxWeight, items=[]) {
+    constructor(maxWeight, maxItemAmount, items=[]) {
         this.maxWeight = maxWeight;
+        this.maxItemAmount = maxItemAmount;
         this.items = items;
     }
 

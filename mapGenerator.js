@@ -103,3 +103,15 @@ function makeSeaBlocks() {
 
     return [leftSideBlock, rightSideBlock];
 }
+
+function makeWildAnimals() {
+    var wildAnimals = [];
+    for (var col = 0; col < mapCols; col ++) {
+        if (Math.random() < boarChance) {
+            var boar = new WildAnimal('boar', new p5.Vector(blockSizeCm * col, -1500), 
+            new p5.Vector(blockSizeCm, blockSizeCm), 5, 'grey20Pixel', 250, 3);
+            wildAnimals.push(boar);
+        }
+    }
+    return wildAnimals;
+}

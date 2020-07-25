@@ -7,7 +7,7 @@ const directions = {
 
 class Character {
     constructor(name, positionCm, sizeCm, moveSpeedCm, imageName,
-        mainItem, secondaryItem, inventory) {
+        mainItem=null, secondaryItem=null, inventory=null) {
         this.name = name;
         this.positionCm = new p5.Vector(positionCm.x, positionCm.y);
         this.sizeCm = new p5.Vector(sizeCm.x, sizeCm.y);
@@ -26,31 +26,35 @@ class Character {
     // ---------
 
     equipMain(item) {
-        this.mainItem = item;
+        if (item !== null) this.mainItem = item;
     }
 
     equipSecondary(item) {
-        this.secondaryItem = item;
+        if (item !== null) this.secondaryItem = item;
     }
 
     mine(blocks) {
-        var touchingBlocks = this.getBlocksBeingMined(blocks);
-        var blockHitAmount = touchingBlocks.length
-        for (var blockIdx = 0; blockIdx < touchingBlocks.length; blockIdx ++) {
-            var block = touchingBlocks[blockIdx];
-            if (! block.isExcavated) {
-                var didDestroyBlock = block.hit(this.mainItem, blockHitAmount);
-                if (didDestroyBlock) {
-                    this.inventory.addItems(block.takeResources());
+        if (this.mainItem !== null) {
+            var touchingBlocks = this.getBlocksBeingMined(blocks);
+            var blockHitAmount = touchingBlocks.length
+            for (var blockIdx = 0; blockIdx < touchingBlocks.length; blockIdx ++) {
+                var block = touchingBlocks[blockIdx];
+                if (! block.isExcavated) {
+                    var didDestroyBlock = block.hit(this.mainItem, blockHitAmount);
+                    if (didDestroyBlock) {
+                        this.inventory.addItems(block.takeResources());
+                    }
                 }
             }
-        }  
+        }
     }
 
     // Main movement
     // -------------
 
-    move(blocks) {
+    move(mapSections) {
+        var blocks = this.getNearbyBlocks(mapSections);
+
         this.generalKeybinds(blocks);
         this.setDirection();
 
@@ -89,6 +93,8 @@ class Character {
 
         translate(cWidth / 2, cHeight / 2);
         scale(scaleMult);
+
+        translate(translationCm);
 
         rotate(mainItemAngle);
         translate(0, -this.mainItem.imageSizeCm.y / 2);
@@ -148,6 +154,19 @@ class Character {
 
     // Low level block stuff
     // ---------------------
+
+    getNearbyBlocks(mapSections) {
+        // Create a list of the blocks in the map sections that the character is in...
+        // ...so that the whole list of blocks doesn't have to be checked for collisions
+
+        var blocks = [];
+        mapSections.forEach(section => {
+            if (section.containsPos(this.positionCm)) {
+                blocks = blocks.concat(section.blocks);
+            }
+        });
+        return blocks;
+    }
 
     isTouchingBlockBeneath(blocks) {
         var isTouching = false;
@@ -376,5 +395,12 @@ class Character {
         // else return 1
         if (keyIsDown(SHIFT)) return multiplier;
         else return 1;
+    }
+
+    getCenterPos() {
+        var halfSelfSize = new p5.Vector(this.sizeCm.x / 2, this.sizeCm.y / 2);
+        var selfCenterPos = new p5.Vector(this.positionCm.x, this.positionCm.y);
+        selfCenterPos.add(halfSelfSize);
+        return selfCenterPos;
     }
 }

@@ -11,6 +11,11 @@ class Panel extends Widget {
         if (this.layoutStyle == layoutStyles.fixedPosition) {
             this.children.push(child);
         }
+        if (this.layoutStyle == layoutStyles.relativePosition) {
+            child.topLeftPos.x += this.topLeftPos.x;
+            child.topLeftPos.y += this.topLeftPos.y;
+            this.children.push(child);
+        }
         else if (this.layoutStyle == layoutStyles.verticalRow) {
             var thisCenterX = this.topLeftPos.x + this.size.x / 2;
 

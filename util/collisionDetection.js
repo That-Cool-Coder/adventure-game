@@ -1,3 +1,7 @@
+function distSq(p1, p2) {
+    return (p2.x - p1.x) ** 2 + (p2.y - p1.y) ** 2;
+}
+
 function roughRectRectCollide(rect1Corner, rect1Size, rect2Corner, rect2Size) {
     // returns true if the rectangles may be colliding
     // returns false if there is no way that they will be colliding
@@ -22,6 +26,9 @@ function roughRectRectCollide(rect1Corner, rect1Size, rect2Corner, rect2Size) {
 }
 
 function rectRectCollisionSide(rect1Corner, rect1Size, rect2Corner, rect2Size) {
+    // Find which side the rectangles are colliding on
+    // (relative to rect 1)
+    
     var dx = (rect1Corner.x + rect1Size.x / 2) - (rect2Corner.x + rect2Size.x / 2);
     var dy = (rect1Corner.y + rect1Size.y / 2) - (rect2Corner.y + rect2Size.y / 2);
     var width = (rect1Size.x + rect2Size.x) / 2;

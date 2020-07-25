@@ -1,7 +1,8 @@
 const layoutStyles = {
     verticalRow : 'verticalRow',
     horizontalRow : 'horizontalRow',
-    fixedPosition : 'fixedPosition'
+    fixedPosition : 'fixedPosition',
+    relativePosition : 'relativePosition'
 }
 
 const alignments = {

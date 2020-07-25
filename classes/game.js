@@ -1,7 +1,7 @@
 class Game {
     constructor(name, bgImageName, character, exitFunc, mainThemeColor, 
-        secondaryColor, version=oldestCompatibleVersion, blocks=[], timeIncrement=1/36000,
-        timeOfDay=0.5, autoSaveInterval=600) {
+        secondaryColor, version=oldestCompatibleVersion, blocks=[], mapSectionXRanges=[],
+        wildAnimals=[], timeIncrement=1/36000, timeOfDay=0.5, autoSaveInterval=600) {
 
         this.name = name;
         this.bgImageName = bgImageName;
@@ -15,6 +15,10 @@ class Game {
         this.version = version;
 
         this.blocks = blocks;
+        this.mapSectionXRanges = mapSectionXRanges;
+        this.generateMapSections(this.mapSectionXRanges);
+        this.fillMapSections(this.blocks);
+        this.wildAnimals = wildAnimals;
         this.timeIncrement = timeIncrement; // 1/36000 will be one day in 10 mins
         this.timeOfDay = timeOfDay;
         this.autoSaveInterval = autoSaveInterval;
@@ -22,6 +26,7 @@ class Game {
         this.cachedFrameRate = 0;
 
         this.paused = false;
+        this.inventoryMenuShowing = false;
 
         this.crntDraw = this.updateExploring.bind(this);
         this.crntButtonChecks = this.exploringButtonChecks.bind(this);
@@ -32,64 +37,6 @@ class Game {
         this.setupHud();
         this.setupPauseMenu();
         this.setupInventoryMenu();
-    }
-
-    // Setup
-    // -----
-
-    setupHud() {
-        this.hud = {};
-
-        this.hud.pauseButton = new SimpleButton(new p5.Vector(widthCm - 140, 10),
-            new p5.Vector(85, 30), 'Pause', 20, scaleMult);
-        this.hud.pauseButton.setBgColor(this.mainThemeColor);
-    }
-
-    setupPauseMenu() {
-        // Setup panel for pause menu
-        var pauseMenuSize = new p5.Vector(widthCm * 0.5, heightCm * 0.75);
-        var marginX = (widthCm - pauseMenuSize.x) / 2;
-        var marginY = (heightCm - pauseMenuSize.y) / 2;
-
-        this.pauseMenu = new Panel(new p5.Vector(marginX, marginY), 
-            pauseMenuSize, layoutStyles.verticalRow, scaleMult);
-        this.pauseMenu.setBgColor(this.secondaryColor);
-
-        // Make unpause button
-        var unpauseBtn = new SimpleButton(new p5.Vector(0, 0),
-            new p5.Vector(120, 40), 'Unpause', 25, scaleMult);
-        unpauseBtn.setBgColor(this.mainThemeColor);
-        this.pauseMenu.addChild(unpauseBtn, 15);
-        this.pauseMenu.linkChild(unpauseBtn, 'unpauseButton'); // give it a label like this.pauseMenu.unpauseButton
-
-        // Make exit button
-        var exitBtn = new SimpleButton(new p5.Vector(0, 0),
-            new p5.Vector(180, 40), 'Save and exit', 25, scaleMult);
-        exitBtn.setBgColor(this.mainThemeColor);
-        this.pauseMenu.addChild(exitBtn, 15);
-        this.pauseMenu.linkChild(exitBtn, 'exitButton'); // see unpause button explanation
-    }
-
-    setupInventoryMenu() {
-        // Setup panel for inventory-showing menu
-        var inventoryMenuSize = new p5.Vector(widthCm * 0.7, heightCm * 0.75);
-        var marginX = (widthCm - inventoryMenuSize.x) / 2;
-        var marginY = (heightCm - inventoryMenuSize.y) / 2;
-
-        this.inventoryMenu = new Panel(new p5.Vector(marginX, marginY), 
-            inventoryMenuSize, layoutStyles.verticalRow, scaleMult);
-        this.inventoryMenu.setBgColor(this.secondaryColor);
-
-        var heading = new Label(new p5.Vector(0, 0),
-            'Inventory', 25, scaleMult);
-        heading.setTextColor([100, 100, 100]);
-        this.inventoryMenu.addChild(heading, 40);
-
-        var counter = new Label(new p5.Vector(0, 0),
-            '0 items in inventory', 15, scaleMult);
-        counter.setTextColor([100, 100, 100]);
-        this.inventoryMenu.addChild(counter, 40);
-        this.inventoryMenu.linkChild(counter, 'itemCounter');
     }
 
     // Small callables
@@ -117,6 +64,24 @@ class Game {
         }
     }
 
+    toggleInventoryMenu() {
+        if (this.inventoryMenuShowing) this.closeInventoryMenu();
+        else this.openInventoryMenu();
+    }
+
+    closeInventoryMenu() {
+        this.inventoryMenuShowing = false;
+        this.crntDraw = this.updateExploring.bind(this);
+        this.crntButtonChecks = this.exploringButtonChecks.bind(this);
+    }
+
+    openInventoryMenu() {
+        this.paused = true;
+        this.inventoryMenuShowing = true;
+        this.crntDraw = this.updateShowingInventory.bind(this);
+        this.crntButtonChecks = this.showingInventoryButtonChecks.bind(this);
+    }
+
     exit() {
         saveGame(this);
 
@@ -130,11 +95,13 @@ class Game {
         // Main loop of the game
 
         // Movement
-        this.character.move(this.blocks);
+        this.moveWildAnimals();
+        this.character.move(this.mapSections);
 
         // Drawing
         this.drawBg();
         this.drawBlocks();
+        this.drawWildAnimals();
         this.character.draw();
         this.drawNightOverlay();
         this.drawFrameRate();
@@ -151,6 +118,7 @@ class Game {
         // Drawing game content
         this.drawBg();
         this.drawBlocks();
+        this.drawWildAnimals();
         this.character.draw(); // may not be necessary - character may be behind menu
         this.drawNightOverlay();
         this.drawFrameRate();
@@ -171,6 +139,7 @@ class Game {
         // Drawing game content
         this.drawBg();
         this.drawBlocks();
+        this.drawWildAnimals();
         this.character.draw(); // may not be necessary - character may be behind menu
         this.drawNightOverlay();
         this.drawInventoryMenu();
@@ -178,6 +147,12 @@ class Game {
 
         // May not keep this
         this.drawMessages();
+    }
+
+    moveWildAnimals() {
+        this.wildAnimals.forEach(animal => {
+            animal.move(this.mapSections, this.character);
+        })
     }
 
     // Drawing the game
@@ -195,6 +170,15 @@ class Game {
 
         this.blocks.forEach(block => {
             block.draw(translation);
+        });
+    }
+
+    drawWildAnimals() {
+        var translation = new p5.Vector(-this.character.positionCm.x, -this.character.positionCm.y);
+        translation.sub(this.character.sizeCm.x / 2, this.character.sizeCm.y / 2);
+
+        this.wildAnimals.forEach(animal => {
+            animal.draw(translation);
         });
     }
 
@@ -296,12 +280,18 @@ class Game {
     }
 
     showingInventoryButtonChecks() {
-        doNothing();
+        if (this.inventoryMenu.exitButton.mouseHovering()) {
+            this.closeInventoryMenu();
+        }
     }
 
     checkHudButtons() {
+        // This assumes that the mouse is being pressed already
         if (this.hud.pauseButton.mouseHovering()) {
             this.togglePause();
+        }
+        if (this.hud.inventoryButton.mouseHovering()) {
+            this.toggleInventoryMenu();
         }
     }
 
@@ -309,27 +299,17 @@ class Game {
     // --------
 
     exploringKeybinds() {
-        if (keyIsDown(73)) { // i
-            this.crntDraw = this.updateShowingInventory.bind(this);
-            this.crntButtonChecks = this.showingInventoryButtonChecks.bind(this);
-            this.crntOnPressKeybinds = this.showingInventoryKeybinds.bind(this);
-            this.paused = true;
-        }
     }
 
     showingInventoryKeybinds() {
-        if (keyIsDown(73)) { // i
-            this.crntDraw = this.updateExploring.bind(this);
-            this.crntButtonChecks = this.exploringButtonChecks.bind(this);
-            this.crntOnPressKeybinds = this.exploringKeybinds.bind(this);
-            this.paused = false;
-        }
     }
 
     // Housekeeping methods
     // --------------------
 
     housekeeping() {
+        // Increment time and autosave
+
         this.timeOfDay += this.timeIncrement; // step time forwards
         if (this.timeOfDay > 1) this.timeOfDay -= 1;
 
@@ -354,5 +334,108 @@ class Game {
         });
 
         this.messages = newMessageList;
+    }
+
+    // Setup World
+    // -----------
+
+    generateMapSections(mapSectionXRanges) {
+        // Make the map sections based on the ranges provided
+        // The map sections are used for checking which blocks to 
+        // Do close collision checks with
+
+        this.mapSections = [];
+        mapSectionXRanges.forEach(xRange => {
+            var mapSection = new MapSection(xRange, []);
+            this.mapSections.push(mapSection);
+        });
+    }
+
+    fillMapSections(blocks) {
+        // Put pointers to the blocks in the correct map sections based on x pos
+
+        blocks.forEach(block => {
+            this.mapSections.forEach(section => {
+                if (section.containsPos(block.positionCm)) {
+                    section.blocks.push(block);
+                }
+            });
+        })
+    }
+
+    // Setup ui
+    // ---------
+
+    setupHud() {
+        this.hud = {};
+
+        this.hud.pauseButton = new SimpleButton(new p5.Vector(widthCm - 140, 10),
+            new p5.Vector(85, 30), 'Pause', 20, scaleMult);
+        this.hud.pauseButton.setBgColor(this.mainThemeColor);
+
+        this.hud.inventoryButton = new SimpleButton(new p5.Vector(widthCm - 260, 10),
+            new p5.Vector(100, 30), 'Inventory', 20, scaleMult);
+        this.hud.inventoryButton.setBgColor(this.mainThemeColor);
+    }
+
+    setupPauseMenu() {
+        // Setup panel for pause menu
+        var pauseMenuSize = new p5.Vector(widthCm * 0.5, heightCm * 0.75);
+        var marginX = (widthCm - pauseMenuSize.x) / 2;
+        var marginY = (heightCm - pauseMenuSize.y) / 2;
+
+        this.pauseMenu = new Panel(new p5.Vector(marginX, marginY), 
+            pauseMenuSize, layoutStyles.verticalRow, scaleMult);
+        this.pauseMenu.setBgColor(this.secondaryColor);
+
+        // Make unpause button
+        var unpauseBtn = new SimpleButton(new p5.Vector(0, 0),
+            new p5.Vector(120, 40), 'Unpause', 25, scaleMult);
+        unpauseBtn.setBgColor(this.mainThemeColor);
+        this.pauseMenu.addChild(unpauseBtn, 15);
+        this.pauseMenu.linkChild(unpauseBtn, 'unpauseButton'); // give it a label like this.pauseMenu.unpauseButton
+
+        // Make exit button
+        var exitBtn = new SimpleButton(new p5.Vector(0, 0),
+            new p5.Vector(180, 40), 'Save and exit', 25, scaleMult);
+        exitBtn.setBgColor(this.mainThemeColor);
+        this.pauseMenu.addChild(exitBtn, 15);
+        this.pauseMenu.linkChild(exitBtn, 'exitButton'); // see unpause button explanation
+    }
+
+    setupInventoryMenu() {
+        // Setup panel for inventory-showing menu
+        var inventoryMenuSize = new p5.Vector(widthCm * 0.7, heightCm * 0.75);
+        var marginX = (widthCm - inventoryMenuSize.x) / 2;
+        var marginY = (heightCm - inventoryMenuSize.y) / 2;
+        var centerX = inventoryMenuSize.x / 2;
+
+        this.inventoryMenu = new Panel(new p5.Vector(marginX, marginY), 
+            inventoryMenuSize, layoutStyles.relativePosition, scaleMult);
+        this.inventoryMenu.setBgColor(this.secondaryColor);
+
+        var heading = new Label(new p5.Vector(centerX, 40),
+            'Inventory', 25, scaleMult);
+        heading.setTextColor([100, 100, 100]);
+        this.inventoryMenu.addChild(heading);
+
+        var counter = new Label(new p5.Vector(centerX, 80),
+            '0 items in inventory', 15, scaleMult);
+        counter.setTextColor([100, 100, 100]);
+        this.inventoryMenu.addChild(counter);
+        this.inventoryMenu.linkChild(counter, 'itemCounter');
+
+        var exitButton = new SimpleButton(new p5.Vector(inventoryMenuSize.x - 60, 5),
+            new p5.Vector(40, 30), 'Exit', 20, scaleMult);
+        exitButton.setTextColor([100, 100, 100]);
+        exitButton.setBgColor(this.mainThemeColor);
+        this.inventoryMenu.addChild(exitButton);
+        this.inventoryMenu.linkChild(exitButton, 'exitButton');
+
+        this.setupCraftingPanel();
+    }
+
+    setupCraftingPanel() {
+        //this.craftingPanel = new Panel(new p5.Vector())
     }
 }

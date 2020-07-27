@@ -19,6 +19,9 @@ const imageUrls = {
 
     characterIdle : 'images/character/characterIdle.png',
 
+    boarLeft : 'images/animals/boarLeft.png',
+    boarRight : 'images/animals/boarRight.png',
+
     pickaxe : 'images/tools/pickaxe.png',
 
     bgImage : 'images/bgImage.png',

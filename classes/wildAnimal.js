@@ -1,11 +1,14 @@
 class WildAnimal extends Character {
-    constructor(name, positionCm, sizeCm, moveSpeedCm, imageName,
-        maxHealth, characterDetectDist, attackDamage) {
+    constructor(name, positionCm, sizeCm, moveSpeedCm, imageNames,
+        maxHealth, maxStamina, staminaRechargeRate, characterDetectDist,
+        attackDamage, staminaToAttack) {
 
-        super(name, positionCm, sizeCm, moveSpeedCm, imageName, maxHealth, null, null, null, null);
+        super(name, positionCm, sizeCm, moveSpeedCm, imageNames, maxHealth, maxStamina, null, null, null);
 
         this.attackDamage = attackDamage;
         this.characterDetectDist = characterDetectDist;
+        this.staminaRechargeRate = staminaRechargeRate;
+        this.staminaToAttack = staminaToAttack;
     }
 
     move(mapSections, characterToChase) {
@@ -22,6 +25,8 @@ class WildAnimal extends Character {
 
         //this.avoidCliffs(blocks);
         this.collideBlocks(blocks);
+
+        this.rechargeStamina();
     }
 
     draw(translationCm=new p5.Vector(0, 0)) {
@@ -30,12 +35,13 @@ class WildAnimal extends Character {
         translate(cWidth / 2, cHeight / 2);
         scale(scaleMult);
 
-        translate(this.positionCm);
+        translate(this.positionCm.x, this.positionCm.y);
         translate(translationCm);
 
         noStroke();
 
-        var imageToDraw = images[this.imageName];
+        var imageToDraw = images[this.imageNames[this.direction]];
+        console.log(images)
         image(imageToDraw, 0, 0, this.sizeCm.x, this.sizeCm.y);
         pop();
     }
@@ -48,10 +54,12 @@ class WildAnimal extends Character {
         // if character is to the right of me
         if (xDistToCharacter > this.moveSpeedCm) {
             var speed = this.moveSpeedCm;
+            this.direction = directions.right;
         }
         // If character is to the left of me
         else if (xDistToCharacter < -this.moveSpeedCm) {
             var speed = -this.moveSpeedCm;
+            this.direction = directions.left;
         }
         // If the character is less than one step away
         else {
@@ -62,7 +70,10 @@ class WildAnimal extends Character {
 
     attackCharacter(character) {
         // Do damage to the character (assuming that the character is being touched)
-        character.health -= this.attackDamage;
+        if (this.stamina >= this.staminaToAttack) {
+            character.health -= this.attackDamage;
+            this.stamina -= this.staminaToAttack;
+        }
     }
 
     nearCharacter(character) {
@@ -89,5 +100,10 @@ class WildAnimal extends Character {
         
         if (collision) return true;
         else return false;
+    }
+
+    rechargeStamina() {
+        this.stamina += this.staminaRechargeRate;
+        if (this.stamina > this.maxStamina) this.stamina = this.maxStamina;
     }
 }

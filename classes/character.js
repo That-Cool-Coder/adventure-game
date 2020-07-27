@@ -6,13 +6,13 @@ const directions = {
 }
 
 class Character {
-    constructor(name, positionCm, sizeCm, moveSpeedCm, imageName, maxHealth, maxStamina,
+    constructor(name, positionCm, sizeCm, moveSpeedCm, imageNames, maxHealth, maxStamina,
         mainItem=null, secondaryItem=null, inventory=null) {
         this.name = name;
         this.positionCm = new p5.Vector(positionCm.x, positionCm.y);
         this.sizeCm = new p5.Vector(sizeCm.x, sizeCm.y);
         this.moveSpeedCm = moveSpeedCm; // not a vector
-        this.imageName = imageName;
+        this.imageNames = imageNames;
 
         this.maxStamina = maxStamina;
         this.stamina = maxStamina;
@@ -84,7 +84,7 @@ class Character {
 
         noStroke();
 
-        var imageToDraw = images[this.imageName];
+        var imageToDraw = images[this.imageNames[this.direction]];
         image(imageToDraw, -this.sizeCm.x / 2, -this.sizeCm.y / 2,
             this.sizeCm.x, this.sizeCm.y);
         pop();

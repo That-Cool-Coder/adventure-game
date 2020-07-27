@@ -28,12 +28,30 @@ const characterName = 'Pete';
 const characterStartPos = new p5.Vector(0, -startTerrainHeight * blockSizeCm);
 const characterSizeCm = new p5.Vector(30, 50);
 const characterSpeed = 3;
-const characterImageNames = 'characterIdle';
 const characterMaxHealth = 100;
 const characterMaxStamina = 100;
+const characterImageNames = {left : 'characterIdle',
+    right : 'characterIdle',
+    up : 'characterIdle',
+    down : 'characterIdle'};
 
 const oldestCompatibleVersion = 17;
 const crntVersion = 17;
+
+// Boars
+const boarName = 'Boar';
+const boarImageNames = {left : 'boarLeft',
+    right : 'boarRight',
+    up : 'characterIdle',
+    down : 'characterIdle'};
+const boarSizeCm = new p5.Vector(blockSizeCm, blockSizeCm);
+const boarMoveSpeedCm = 5;
+const boarMaxHealth = 50;
+const boarMaxStamina = 10;
+const boarStaminaToAttack = 10;
+const boarStaminaRechargeRate = 0.1;
+const boarCharacterDetectDist = 250
+const boarAttackDamage = 20;
 
 const mapSectionWidthCm = 500;
 const mapSectionOverlapCm = 100;

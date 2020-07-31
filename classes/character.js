@@ -4,21 +4,26 @@ const directions = {
     up : 'up',
     down : 'down'
 }
-
 class Character {
-    constructor(name, positionCm, sizeCm, moveSpeedCm, imageNames, maxHealth, maxStamina,
+    constructor(name, positionCm, sizeCm, moveSpeedCm, imageNames,
+        maxHealth, healRate, maxStamina, staminaRechargeRate, alive=true,
         mainItem=null, secondaryItem=null, inventory=null) {
+
         this.name = name;
         this.positionCm = new p5.Vector(positionCm.x, positionCm.y);
         this.sizeCm = new p5.Vector(sizeCm.x, sizeCm.y);
         this.moveSpeedCm = moveSpeedCm; // not a vector
         this.imageNames = imageNames;
 
-        this.maxStamina = maxStamina;
-        this.stamina = maxStamina;
+        this.alive = alive;
 
         this.maxHealth = maxHealth;
         this.health = maxHealth;
+        this.healRate = healRate;
+
+        this.maxStamina = maxStamina;
+        this.stamina = maxStamina;
+        this.staminaRechargeRate = staminaRechargeRate;
 
         this.inventory = inventory;
 
@@ -39,6 +44,15 @@ class Character {
         if (item !== null) this.secondaryItem = item;
     }
 
+    useMain(blocks, wildAnimals) {
+        this.mine(blocks);
+        this.attackWildAnimals(wildAnimals);
+    }
+
+    useSecondary() {
+
+    }
+
     mine(blocks) {
         if (this.mainItem !== null) {
             var touchingBlocks = this.getBlocksBeingMined(blocks);
@@ -55,20 +69,43 @@ class Character {
         }
     }
 
+    hit(damage, totalThingsHit=1) {
+        // if multiple blocks are being hit, deal a smaller amount of damage to each
+        this.health -= damage / totalThingsHit;
+
+        var wasKilledNow = false;
+
+        if (this.health <= 0 /*&& this.alive*/) {
+            this.die();
+        }
+
+        return wasKilledNow;
+    }
+
+    die() {
+        this.health = 0;
+        this.stamina = 0;
+        this.alive = false;
+    }
+
     // Main movement
     // -------------
 
-    move(mapSections) {
+    move(mapSections, wildAnimals) {
         var blocks = this.getNearbyBlocks(mapSections);
 
-        this.generalKeybinds(blocks);
+        this.generalKeybinds(blocks, wildAnimals);
         this.setDirection();
 
         var isUnderground = this.isHittingExcavatedBlock(blocks);
         if (isUnderground) this.undergroundMovement();
         else this.fall(blocks);
 
+        this.heal();
+        this.rechargeStamina();
+
         this.collideBlocks(blocks);
+        this.collideWildAnimals(wildAnimals);
     }
 
     // Drawing
@@ -112,6 +149,50 @@ class Character {
         pop();
     }
 
+    // Interactions with other objects
+    // -------------------------------
+
+    attackWildAnimals(wildAnimals) {
+        var collisionBox = this.makeMainItemCollisionBox();
+
+        // Find the animals being hit
+        var animalsBeingHit = [];
+        wildAnimals.forEach(animal => {
+            // This works because tool hit boxes have the same attributes as characters
+            var collision = animal.touchingCharacter(collisionBox);
+
+            if (collision) animalsBeingHit.push(animal);
+        });
+
+        // Deal damage to the animals
+        animalsBeingHit.forEach(animal => {
+            animal.hit(this.mainItem.hitPower, animalsBeingHit.length);
+        });
+    }
+
+    touchingCharacter(character) {
+        // Return a boolean stating if the this is touching the character
+
+        // this function is documented to work with vector inputs...
+        // ...but I couldn't get that to work
+        var collision = collideRectRect(
+            this.positionCm.x, this.positionCm.y,
+            this.sizeCm.x, this.sizeCm.y,
+            character.positionCm.x, character.positionCm.y,
+            character.sizeCm.x, character.sizeCm.y);
+        
+        if (collision) return true;
+        else return false;
+    }
+
+    collideWildAnimals(wildAnimals) {
+        wildAnimals.forEach(animal => {
+            if (this.touchingCharacter(animal)) {
+                this.moveAwayFromBlock(animal);
+            }
+        })
+    }
+
     // 2nd level movement
     // ------------------
 
@@ -123,8 +204,10 @@ class Character {
 
     collideBlocks(blocks) {
         var touchingBlocks = this.getTouchingBlocks(blocks);
+
         for (var blockIdx = 0; blockIdx < touchingBlocks.length; blockIdx ++) {
             var block = touchingBlocks[blockIdx];
+
             // don't collide with blocks that are excavated
             if (! block.isExcavated) {
                 this.moveAwayFromBlock(block);
@@ -337,7 +420,7 @@ class Character {
         }
     }
 
-    generalKeybinds(blocks) {
+    generalKeybinds(blocks, wildAnimals) {
         if (keyIsDown(LEFT_ARROW)) {
             this.positionCm.x -= this.moveSpeedCm * this.goFasterOnShift(2);
         }
@@ -347,12 +430,11 @@ class Character {
         }
 
         if (keyIsDown(90)) { // 'z'
-            this.mine(blocks);
-            // this.useMain(blocks);
+            this.useMain(blocks, wildAnimals);
         }
 
         else if (keyIsDown(88)) { // 'x'
-            // this.useSecondary(blocks);
+            this.useSecondary(blocks);
         }
     }
 
@@ -395,5 +477,17 @@ class Character {
         var selfCenterPos = new p5.Vector(this.positionCm.x, this.positionCm.y);
         selfCenterPos.add(halfSelfSize);
         return selfCenterPos;
+    }
+
+    heal() {
+        if (this.stamina > 0 && this.health < this.maxHealth / 2) {
+            this.health += this.healRate;
+            if (this.health > this.maxHealth) this.health = this.maxHealth;
+        }
+    } 
+
+    rechargeStamina() {
+        this.stamina += this.staminaRechargeRate;
+        if (this.stamina > this.maxStamina) this.stamina = this.maxStamina;
     }
 }

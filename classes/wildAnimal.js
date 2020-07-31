@@ -1,14 +1,13 @@
 class WildAnimal extends Character {
     constructor(name, positionCm, sizeCm, moveSpeedCm, imageNames,
         maxHealth, maxStamina, staminaRechargeRate, characterDetectDist,
-        attackDamage, staminaToAttack) {
+        attackTool, alive) {
 
-        super(name, positionCm, sizeCm, moveSpeedCm, imageNames, maxHealth, maxStamina, null, null, null);
+        super(name, positionCm, sizeCm, moveSpeedCm, imageNames, maxHealth, 0,
+            maxStamina, staminaRechargeRate, alive, attackTool, null, null);
 
-        this.attackDamage = attackDamage;
+        this.attackTool = attackTool;
         this.characterDetectDist = characterDetectDist;
-        this.staminaRechargeRate = staminaRechargeRate;
-        this.staminaToAttack = staminaToAttack;
     }
 
     move(mapSections, characterToChase) {
@@ -20,7 +19,10 @@ class WildAnimal extends Character {
         }
         if (this.touchingCharacter(characterToChase)) {
             this.moveAwayFromBlock(characterToChase);
-            this.attackCharacter(characterToChase)
+        }
+
+        if (this.attackToolTouchingCharacter(characterToChase)) {
+            this.attackCharacter(characterToChase);
         }
 
         //this.avoidCliffs(blocks);
@@ -41,7 +43,6 @@ class WildAnimal extends Character {
         noStroke();
 
         var imageToDraw = images[this.imageNames[this.direction]];
-        console.log(images)
         image(imageToDraw, 0, 0, this.sizeCm.x, this.sizeCm.y);
         pop();
     }
@@ -64,15 +65,17 @@ class WildAnimal extends Character {
         // If the character is less than one step away
         else {
             var speed = xDistToCharacter;
+            if (speed < 0) this.direction = directions.left;
+            else if (speed > 0) this.direction = directions.right;
         }
         this.positionCm.x += speed;
     }
 
     attackCharacter(character) {
         // Do damage to the character (assuming that the character is being touched)
-        if (this.stamina >= this.staminaToAttack) {
-            character.health -= this.attackDamage;
-            this.stamina -= this.staminaToAttack;
+        if (this.stamina >= this.attackTool.staminaToUse) {
+            character.hit(this.attackTool.hitPower);
+            this.stamina -= this.attackTool.staminaToUse;
         }
     }
 
@@ -87,23 +90,11 @@ class WildAnimal extends Character {
         else return false;
     }
 
-    touchingCharacter(character) {
-        // Return a boolean stating if the animal is touching the character
+    attackToolTouchingCharacter(character) {
+        var collisionBox = this.makeMainItemCollisionBox();
 
-        // this function is documented to work with vector inputs...
-        // ...but I couldn't get that to work
-        var collision = collideRectRect(
-            this.positionCm.x, this.positionCm.y,
-            this.sizeCm.x, this.sizeCm.y,
-            character.positionCm.x, character.positionCm.y,
-            character.sizeCm.x, character.sizeCm.y);
-        
-        if (collision) return true;
-        else return false;
-    }
-
-    rechargeStamina() {
-        this.stamina += this.staminaRechargeRate;
-        if (this.stamina > this.maxStamina) this.stamina = this.maxStamina;
+        // This works because collision boxes have the same attributes as characters
+        var collision = character.touchingCharacter(collisionBox);
+        return collision;
     }
 }

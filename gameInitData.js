@@ -29,6 +29,7 @@ const characterStartPos = new p5.Vector(0, -startTerrainHeight * blockSizeCm);
 const characterSizeCm = new p5.Vector(30, 50);
 const characterSpeed = 3;
 const characterMaxHealth = 100;
+const characterHealRate = 0.02;
 const characterMaxStamina = 100;
 const characterImageNames = {left : 'characterIdle',
     right : 'characterIdle',
@@ -40,27 +41,35 @@ const crntVersion = 17;
 
 // Boars
 const boarName = 'Boar';
-const boarImageNames = {left : 'boarLeft',
+const boarImageNames = {
+    left : 'boarLeft',
     right : 'boarRight',
     up : 'characterIdle',
     down : 'characterIdle'};
-const boarSizeCm = new p5.Vector(blockSizeCm, blockSizeCm);
+const boarSizeCm = new p5.Vector(blockSizeCm * 1.2, blockSizeCm * 1.2);
 const boarMoveSpeedCm = 5;
-const boarMaxHealth = 50;
+const boarMaxHealth = 30;
 const boarMaxStamina = 10;
 const boarStaminaToAttack = 10;
-const boarStaminaRechargeRate = 0.1;
+const boarStaminaRechargeRate = 0.2;
 const boarCharacterDetectDist = 250
-const boarAttackDamage = 20;
+const boarAttackDamage = 8;
 
 const mapSectionWidthCm = 500;
 const mapSectionOverlapCm = 100;
-const mapSectionXRanges = [new Range(-1000, 0)];
+const mapSectionXRanges = [];
+
+// Make lower bound
+mapSectionXRanges.push(new Range(-10000, 0));
+
 // Generate a bunch of overlapping map sections for collision checking
 for (var i = 0; i < mapCols * blockSizeCm / mapSectionWidthCm; i ++) {
     mapSectionXRanges.push(new Range(i * mapSectionWidthCm - mapSectionOverlapCm, 
         (i + 1) * mapSectionWidthCm));
 }
+// Make upper bound
+mapSectionXRanges.push(new Range(i * mapSectionWidthCm - mapSectionOverlapCm, 
+        10000));
 
 function startNewGame() {
     var blocks = makeTerrain();
@@ -70,8 +79,8 @@ function startNewGame() {
     var inventory = new Inventory(100, 50);
 
     var character = new Character(characterName, characterStartPos, 
-        characterSizeCm, characterSpeed, characterImageNames, characterMaxHealth,
-        characterMaxStamina, tool, tool, inventory);
+        characterSizeCm, characterSpeed, characterImageNames,
+        characterMaxHealth, characterHealRate, characterMaxStamina, 0, true, tool, tool, inventory);
 
     game = new Game(gameSaveName, gameBgImageNames, character, 
         'exitGame()', themeColors.mainBrown, themeColors.secondBrown,

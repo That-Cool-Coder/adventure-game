@@ -96,7 +96,7 @@ class Game {
 
         // Movement
         this.moveWildAnimals();
-        this.character.move(this.mapSections);
+        this.character.move(this.mapSections, this.wildAnimals);
 
         // Drawing
         this.drawBg();
@@ -319,6 +319,9 @@ class Game {
         }
 
         this.updateMessages();
+        this.updateHud();
+
+        this.deleteDeadAnimals();
 
         this.blocks.forEach(block => block.housekeeping());
     }
@@ -334,6 +337,19 @@ class Game {
         });
 
         this.messages = newMessageList;
+    }
+
+    updateHud() {
+        this.hud.healthMeter.text = 'Health: ' + Math.floor(this.character.health);
+    }
+    
+    deleteDeadAnimals() {
+        // Loop backwards to avoid issues on deleting items and messing with indexes
+        for (var i = this.wildAnimals.length - 1; i >= 0; i --) {
+            if (! this.wildAnimals[i].alive) {
+                this.wildAnimals.splice(i, 1);
+            }
+        }
     }
 
     // Setup World
@@ -376,6 +392,9 @@ class Game {
         this.hud.inventoryButton = new SimpleButton(new p5.Vector(widthCm - 260, 10),
             new p5.Vector(100, 30), 'Inventory', 20, scaleMult);
         this.hud.inventoryButton.setBgColor(this.mainThemeColor);
+
+        this.hud.healthMeter = new Label(new p5.Vector(widthCm - 140, heightCm - 40),
+            'Health: ' + this.character.health, 30, scaleMult);
     }
 
     setupPauseMenu() {

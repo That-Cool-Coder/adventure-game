@@ -111,9 +111,17 @@ function makeWildAnimals() {
             var boar = new WildAnimal('boar', new p5.Vector(blockSizeCm * col, -1500), 
                 boarSizeCm, boarMoveSpeedCm, boarImageNames, boarMaxHealth,
                 boarMaxStamina, boarStaminaRechargeRate, boarCharacterDetectDist,
-                boarAttackDamage, boarStaminaToAttack);
+                makeWildAnimalTool(), true);
             wildAnimals.push(boar);
         }
     }
     return wildAnimals;
+}
+
+function makeWildAnimalTool() {
+    var tool = new Tool('dat boar', 1, new p5.Vector(0, 0), 'grey20Pixel',
+        boarAttackDamage,
+        new p5.Vector(boarSizeCm.x / 1.9, boarSizeCm.y / 2),
+        boarStaminaToAttack);
+    return tool;
 }

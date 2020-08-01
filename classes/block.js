@@ -17,6 +17,8 @@ class Block {
         this.isIndestructible = isIndestructible;
 
         this.hitLastFrame = false;
+
+        addClassName(this, 'Block');
     }
 
     draw(viewPanCm) {

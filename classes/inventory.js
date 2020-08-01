@@ -3,6 +3,8 @@ class Inventory {
         this.maxWeight = maxWeight;
         this.maxItemAmount = maxItemAmount;
         this.items = items;
+
+        addClassName(this, 'Inventory');
     }
 
     addItem(item) {

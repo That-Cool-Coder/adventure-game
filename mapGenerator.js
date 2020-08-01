@@ -108,10 +108,7 @@ function makeWildAnimals() {
     var wildAnimals = [];
     for (var col = 0; col < mapCols; col ++) {
         if (Math.random() < boarChance) {
-            var boar = new WildAnimal('boar', new p5.Vector(blockSizeCm * col, -1500), 
-                boarSizeCm, boarMoveSpeedCm, boarImageNames, boarMaxHealth,
-                boarMaxStamina, boarStaminaRechargeRate, boarCharacterDetectDist,
-                makeWildAnimalTool(), true);
+            var boar = new Boar(new p5.Vector(blockSizeCm * col, -1500));
             wildAnimals.push(boar);
         }
     }

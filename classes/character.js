@@ -31,6 +31,8 @@ class Character {
 
         this.equipMain(mainItem);
         this.equipSecondary(secondaryItem);
+
+        addClassName(this, 'Character');
     }
 
     // Callables

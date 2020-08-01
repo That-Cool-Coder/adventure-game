@@ -30,6 +30,8 @@ class TitleScreen {
         
         this.setupStartMenu();
         this.setupPlayMenu();
+
+        addClassName(this, 'TitleScreen');
     }
 
     // Setup

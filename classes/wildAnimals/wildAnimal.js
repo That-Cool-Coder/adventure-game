@@ -8,6 +8,8 @@ class WildAnimal extends Character {
 
         this.attackTool = attackTool;
         this.characterDetectDist = characterDetectDist;
+
+        addClassName(this, 'WildAnimal');
     }
 
     move(mapSections, characterToChase) {

@@ -37,6 +37,8 @@ class Game {
         this.setupHud();
         this.setupPauseMenu();
         this.setupInventoryMenu();
+
+        addClassName(this, 'Game');
     }
 
     // Small callables
@@ -372,7 +374,11 @@ class Game {
 
         blocks.forEach(block => {
             this.mapSections.forEach(section => {
-                if (section.containsPos(block.positionCm)) {
+                // Check the bottom right corner
+                var bottomRightCorner = new p5.Vector(
+                    block.positionCm.x + block.sizeCm.x,
+                    block.positionCm.y + block.sizeCm.y);
+                if (section.overlapsArea(block.positionCm, bottomRightCorner)) {
                     section.blocks.push(block);
                 }
             });

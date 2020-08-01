@@ -70,7 +70,7 @@ class Character {
     }
 
     hit(damage, totalThingsHit=1) {
-        // if multiple blocks are being hit, deal a smaller amount of damage to each
+        // if multiple things are being hit, deal a smaller amount of damage to each
         this.health -= damage / totalThingsHit;
 
         var wasKilledNow = false;

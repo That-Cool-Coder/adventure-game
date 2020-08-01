@@ -5,8 +5,8 @@ class TitleScreen {
         this.bgImageName = bgImageName;
         this.bgImageSize = bgImageSize;
 
-        this.startGameFunc = startGameFunc;
-        this.newGameFunc = newGameFunc;
+        this.startGameFunc = startGameFunc; // to start any game
+        this.newGameFunc = newGameFunc; // to start new
 
         // 'consts'
 
@@ -75,17 +75,17 @@ class TitleScreen {
             layoutStyles.verticalRow, scaleMult);
         this.playMenu.setBorderWidth(0);
 
-        // Set up start game button
-        var startGameButton = new SimpleButton(fillInVector, new p5.Vector(300, 70),
-            'Start Game', 50, scaleMult);
-        startGameButton.setBorderWidth(3);
-        startGameButton.setBorderColor(themeColors.secondBrown);
-        startGameButton.setTextOutlineWidth(0);
-        startGameButton.setTextColor([100, 100, 100]);
-        startGameButton.setBgColor(themeColors.mainBrown);
+        // Set up load game button
+        var loadGameButton = new SimpleButton(fillInVector, new p5.Vector(300, 70),
+            'Load Game', 50, scaleMult);
+        loadGameButton.setBorderWidth(3);
+        loadGameButton.setBorderColor(themeColors.secondBrown);
+        loadGameButton.setTextOutlineWidth(0);
+        loadGameButton.setTextColor([100, 100, 100]);
+        loadGameButton.setBgColor(themeColors.mainBrown);
 
-        this.playMenu.addChild(startGameButton, 5);
-        this.playMenu.linkChild(startGameButton, 'startGameButton');
+        this.playMenu.addChild(loadGameButton, 5);
+        this.playMenu.linkChild(loadGameButton, 'loadGameButton');
 
 
         // Set up new game button
@@ -224,7 +224,7 @@ class TitleScreen {
     }
 
     checkPlayMenuButtons() {
-        if (this.playMenu.startGameButton.mouseHovering(this.viewPanCm)) {
+        if (this.playMenu.loadGameButton.mouseHovering(this.viewPanCm)) {
             this.startFadeIntoGame().then(() => {
                 eval(this.startGameFunc);
             });

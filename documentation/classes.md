@@ -3,8 +3,13 @@
 [Main Contents](/README.md)
 
 ## Contents of this file
-- [Unfixed Bugs](#unfixed)
-- [Fixed Bugs](#fixed)
+- [Inventory system (Inventory, Tool and Item classes)](#inventory-system-inventory-tool-and-item-classes)
+- [Mining (Tool, Block and Resource classes)](#mining-tool-block-and-resource-classes)
+- [Specifics of the Resource class](#specifics-of-the-resource-class)
+- [Map sections](#map-sections)
+- [WildAnimal class](#wildanimal-class)
+- [Species of WildAnimal](#species-of-wildanimal)
+
 
 #### Inventory system (Inventory, Tool and Item classes)
 In an inventory, the maximum amount of items is measured by weight. Any number of sufficiently light items can be carrier. The basic item is from the Item class. It has imagesize/name, weight and item name. Built upon that class are Tool (soon to be ShortRangeTool or something), which is for things like hammers, pickaxes and shovels. There will also be a class called LongRangeTool and this will be things that shoot things, like a bow and arrow. The Inventory class has a prototype and therefore needs to be reconstructed when loading from JSON. The items within an Inventory are all built upon the Item class and have no prototype, simplifying loading from JSON.

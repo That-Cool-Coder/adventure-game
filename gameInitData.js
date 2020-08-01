@@ -36,24 +36,8 @@ const characterImageNames = {left : 'characterIdle',
     up : 'characterIdle',
     down : 'characterIdle'};
 
-const oldestCompatibleVersion = 17;
-const crntVersion = 17;
-
-// Boars
-const boarName = 'Boar';
-const boarImageNames = {
-    left : 'boarLeft',
-    right : 'boarRight',
-    up : 'characterIdle',
-    down : 'characterIdle'};
-const boarSizeCm = new p5.Vector(blockSizeCm * 1.2, blockSizeCm * 1.2);
-const boarMoveSpeedCm = 5;
-const boarMaxHealth = 30;
-const boarMaxStamina = 10;
-const boarStaminaToAttack = 10;
-const boarStaminaRechargeRate = 0.2;
-const boarCharacterDetectDist = 250
-const boarAttackDamage = 8;
+const oldestCompatibleVersion = 18;
+const crntVersion = 18;
 
 const mapSectionWidthCm = 500;
 const mapSectionOverlapCm = 100;

@@ -7,21 +7,32 @@ function saveGame(gameToSave) {
 }
 
 async function loadGame(gameName) {
-    var success = false;
+    var status = errorDict.nonExistingGameLoaded;
 
     var promise = await localforage.getItem(gameName).then(stringifiedGame => {
+        var newGame = null;
+        // If a game was found with that name
         if (stringifiedGame !== null) {
             var gameData = JSON.parse(stringifiedGame);
 
+            // Check if the version is compatible
             if (gameData.version >= oldestCompatibleVersion) {
-                var newGame = parseJsonGame(stringifiedGame);
-                success = true;
-                return newGame;
+                // Load the game and set the error to no error
+                newGame = parseJsonGame(stringifiedGame);
+                status = errorDict.noError;
+            }
+            // If the version isn't compatible, say that error message
+            else {
+                status = errorDict.incompatibleGameVersion;
             }
         }
-        if (! success) {
-            return null;
+        // If the game didn't exist, say that error message
+        else {
+            status = status.nonExistingGameLoaded;
         }
+
+        // Return the status and game
+        return {game : newGame, status : status};
     });
     return promise;
 }
@@ -30,7 +41,7 @@ function efficientlyStringifyGame(gameToStringify) {
     // Only stringify the bits that are required (not menu data) and swap out some regular
     // but long commonly used expressions for shorter things.
     // For instance, the long thing for a coal block becomes <c>
-    // (That is currently not in action)
+    // (This is currently not in action)
     var largeStringifiedGame = JSON.stringify(gameToStringify);
     var gameData = JSON.parse(largeStringifiedGame);
     var smallGameToStringify = {

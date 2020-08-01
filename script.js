@@ -84,21 +84,40 @@ function startGame(gameToStart) {
     else {
         console.warn('Warning: Attempted to start null game');
         console.log('An error most likely occured in saveAndLoad.js ' +
-        'due to an imcompatible version')
+        'due to an incompatible version');
+
+        var canDelete = confirm('Warning: cannot load saved game ' + 
+            'due to an incompatible version. Start new game and delete old one?');
+        if (canDelete) startNewGame
     }
 }
 
 function startUnnamedGame() {
     // (just a thing for the title screen to start the game, not final)
 
-    // If there's a saved game, load it
-    if (loadGame('unnamedGame') !== null) {
-        loadGame('unnamedGame').then(startGame);
-    }
-    // Else make a new one
-    else {
-        startNewGame();
-    }
+    loadGame('unnamedGame').then(gameData => {
+        // If the loading went fine, then start the game
+        if (gameData.status == errorDict.noError) {
+            startGame(gameData.game);
+        }
+        // If the problem is that there is no game under that name, start new game
+        else if (gameData.status == errorDict.nonExistingGameStarted) {
+            startNewGame();
+        }
+        // If the version is incompatible, then ask the user...
+        // ...if they want to start a new game
+        else if (gameData.status == errorDict.incompatibleGameVersion) {
+            var canStart = confirm('Cannot load game: the version is incompatible.\n' + 
+                'Start new game?');
+            if (canStart) {
+                startNewGame();
+            }
+            else {
+                goToTitleScreen();
+                titleScreen.goToPlayMenu();
+            }
+        }
+    })
 }
 
 function mouseReleased() {

@@ -84,8 +84,6 @@ function parseJsonGame(stringifiedGame) {
     loadBlocks(gameData);
     loadWildAnimals(gameData);
     loadCharacter(gameData);
-
-    console.log(makeWildAnimals()[0], gameData.wildAnimals[0])
     
     // Don't use Object.setPrototypeOf() on game as it has a bunch of highly nested menus
     // that aren't saved in the JSON and would be a pain to reprototype

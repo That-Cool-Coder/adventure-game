@@ -1,7 +1,9 @@
 class Game {
     constructor(name, bgImageName, character, exitFunc, mainThemeColor, 
         secondaryColor, version=oldestCompatibleVersion, blocks=[], mapSectionXRanges=[],
-        wildAnimals=[], timeIncrement=1/36000, timeOfDay=0.5, autoSaveInterval=600) {
+        wildAnimals=[], wildAnimalSpawnArea=null, wildAnimalSpawnChances={}, createWildAnimalFunctions={},
+        maxWildAnimalAmounts={},
+        timeIncrement=1/36000, timeOfDay=0.5, autoSaveInterval=600) {
 
         this.name = name;
         this.bgImageName = bgImageName;
@@ -18,9 +20,16 @@ class Game {
         this.mapSectionXRanges = mapSectionXRanges;
         this.generateMapSections(this.mapSectionXRanges);
         this.fillMapSections(this.blocks);
+
         this.wildAnimals = wildAnimals;
+        this.wildAnimalSpawnArea = wildAnimalSpawnArea;
+        this.wildAnimalSpawnChances = wildAnimalSpawnChances;
+        this.createWildAnimalFunctions = createWildAnimalFunctions;
+        this.maxWildAnimalAmounts = maxWildAnimalAmounts;
+
         this.timeIncrement = timeIncrement; // 1/36000 will be one day in 10 mins
         this.timeOfDay = timeOfDay;
+
         this.autoSaveInterval = autoSaveInterval;
 
         this.cachedFrameRate = 0;
@@ -100,6 +109,8 @@ class Game {
         this.moveWildAnimals();
         this.character.move(this.mapSections, this.wildAnimals);
 
+        this.spawnWildAnimals();
+
         // Drawing
         this.drawBg();
         this.drawBlocks();
@@ -135,8 +146,8 @@ class Game {
     updateShowingInventory() {
         // Loop for when the game is showing the character's inventory
 
-        this.inventoryMenu.itemCounter.setText(this.character.inventory.items.length + 
-            ' items in inventory');
+        //this.inventoryMenu.itemCounter.setText(this.character.inventory.items.length + 
+            //' items in inventory');
         
         // Drawing game content
         this.drawBg();
@@ -263,6 +274,7 @@ class Game {
 
     drawInventoryMenu() {
         this.inventoryMenu.draw();
+        this.inventoryMenu.centerPanel.updateInventory(this.character.inventory);
     }
 
     // Button click checking
@@ -320,7 +332,7 @@ class Game {
             this.addMessage('Autosaving...');
         }
 
-        this.updateMessages();
+        this.deleteOldMessages();
         this.updateHud();
 
         this.deleteDeadAnimals();
@@ -328,7 +340,7 @@ class Game {
         this.blocks.forEach(block => block.housekeeping());
     }
 
-    updateMessages() {
+    deleteOldMessages() {
         // delete expired messages
 
         var newMessageList = [];
@@ -342,15 +354,40 @@ class Game {
     }
 
     updateHud() {
+        // Update the displays on the HUD
+
         this.hud.healthMeter.text = 'Health: ' + Math.floor(this.character.health);
     }
     
     deleteDeadAnimals() {
+        // Delete the wild animals that are no longer living so they don't draw, do damage
+
         // Loop backwards to avoid issues on deleting items and messing with indexes
         for (var i = this.wildAnimals.length - 1; i >= 0; i --) {
             if (! this.wildAnimals[i].alive) {
                 this.wildAnimals.splice(i, 1);
             }
+        }
+    }
+
+    spawnWildAnimals() {
+        // Go through all the wild animal types and spawn them if there is the right chance
+
+        if (this.wildAnimalSpawnArea !== null) {
+            wildAnimalSpecies.forEach(species => {
+
+                // If there is a spawn chance defined for  that species
+                if (this.wildAnimalSpawnChances[species] !== undefined) {
+
+                    // If random is within a chance, then look up the create function and run it
+                    if (Math.random() < this.wildAnimalSpawnChances[species] &&
+                        ! this.tooManyAnimals(species)) {
+
+                        var pos = new p5.Vector(random(this.wildAnimalSpawnArea.min, this.wildAnimalSpawnArea.max),  -1500);
+                        this.wildAnimals.push(this.createWildAnimalFunctions[species](pos));
+                    }
+                }
+            });
         }
     }
 
@@ -430,7 +467,7 @@ class Game {
 
     setupInventoryMenu() {
         // Setup panel for inventory-showing menu
-        var inventoryMenuSize = new p5.Vector(widthCm * 0.7, heightCm * 0.75);
+        var inventoryMenuSize = new p5.Vector(widthCm * 0.9, heightCm * 0.9);
         var marginX = (widthCm - inventoryMenuSize.x) / 2;
         var marginY = (heightCm - inventoryMenuSize.y) / 2;
         var centerX = inventoryMenuSize.x / 2;
@@ -447,8 +484,8 @@ class Game {
         var counter = new Label(new p5.Vector(centerX, 80),
             '0 items in inventory', 15, scaleMult);
         counter.setTextColor([100, 100, 100]);
-        this.inventoryMenu.addChild(counter);
-        this.inventoryMenu.linkChild(counter, 'itemCounter');
+        //this.inventoryMenu.addChild(counter);
+        //this.inventoryMenu.linkChild(counter, 'itemCounter');
 
         var exitButton = new SimpleButton(new p5.Vector(inventoryMenuSize.x - 60, 5),
             new p5.Vector(40, 30), 'Exit', 20, scaleMult);
@@ -457,10 +494,45 @@ class Game {
         this.inventoryMenu.addChild(exitButton);
         this.inventoryMenu.linkChild(exitButton, 'exitButton');
 
+        var centerPanelSize = new p5.Vector(inventoryMenuSize.x / 3, inventoryMenuSize.y - 100);
+        var centerPanelPos = new p5.Vector(inventoryMenuSize.x / 3, 100);
+        var centerPanel = new InventoryPanel(this.character.inventory, centerPanelPos,
+            centerPanelSize, 15, 5, scaleMult);
+        this.inventoryMenu.addChild(centerPanel);
+        this.inventoryMenu.linkChild(centerPanel, 'centerPanel');
+
         this.setupCraftingPanel();
     }
 
     setupCraftingPanel() {
         //this.craftingPanel = new Panel(new p5.Vector())
+    }
+
+    // Misc
+    // ----
+
+    amountOfAnimals(speciesName) {
+        // Count how many animals there are of this species
+
+        var count = 0;
+        this.wildAnimals.forEach(animal => {
+            if (animal.species == speciesName) {
+                count ++;
+            }
+        })
+        return count;
+    }
+
+    tooManyAnimals(speciesName) {
+        // Is the amount of animals of this species above the maximum for that species?
+
+        var count = this.amountOfAnimals(speciesName);
+        if (this.maxWildAnimalAmounts[speciesName] == undefined) {
+            return false;
+        }
+        else if (count > this.maxWildAnimalAmounts[speciesName]) {
+            return true;
+        }
+        else return false;
     }
 }

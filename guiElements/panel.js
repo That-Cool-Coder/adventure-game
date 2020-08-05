@@ -49,6 +49,10 @@ class Panel extends Widget {
         }
     }
 
+    removeChildren() {
+        this.children = [];
+    }
+
     linkChild(child, name) {
         this[name] = child;
     }

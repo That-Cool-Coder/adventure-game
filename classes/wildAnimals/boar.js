@@ -24,6 +24,8 @@ class Boar extends WildAnimal {
         super(name, positionCm, sizeCm, moveSpeedCm, imageNames,
             maxHealth, maxStamina, staminaRechargeRate, characterDetectDist,
             attackTool, true);
+        
+        this.species = 'boar';
 
         addClassName(this, 'Boar');
     }

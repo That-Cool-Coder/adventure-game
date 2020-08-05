@@ -13,7 +13,7 @@ const alignments = {
 }
 
 class Widget {
-    constructor(topLeftPos, size, text, textSize, scaleMult=1) {
+    constructor(topLeftPos, size, text='', textSize=0, scaleMult=1) {
         this.scaleMult = scaleMult;
 
         this.topLeftPos = topLeftPos.copy();

@@ -1,3 +1,7 @@
+const wildAnimalSpecies = [
+    'boar'
+];
+
 class WildAnimal extends Character {
     constructor(name, positionCm, sizeCm, moveSpeedCm, imageNames,
         maxHealth, maxStamina, staminaRechargeRate, characterDetectDist,

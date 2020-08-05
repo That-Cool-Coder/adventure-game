@@ -36,8 +36,21 @@ const characterImageNames = {left : 'characterIdle',
     up : 'characterIdle',
     down : 'characterIdle'};
 
-const oldestCompatibleVersion = 18;
-const crntVersion = 18;
+// Wild animals
+const wildAnimalSpawnChances = {
+    'boar' : 1 / (60 * 30)
+};
+
+const createWildAnimalFunctions = {
+    'boar' : pos => new Boar(pos)
+};
+
+const maxWildAnimalAmounts = {
+    'boar' : 25
+}
+
+const oldestCompatibleVersion = 20;
+const crntVersion = 20;
 
 const mapSectionWidthCm = 500;
 const mapSectionOverlapCm = 100;
@@ -66,9 +79,13 @@ function startNewGame() {
         characterSizeCm, characterSpeed, characterImageNames,
         characterMaxHealth, characterHealRate, characterMaxStamina, 0, true, tool, tool, inventory);
 
-    game = new Game(gameSaveName, gameBgImageNames, character, 
-        'exitGame()', themeColors.mainBrown, themeColors.secondBrown,
-        crntVersion, blocks, mapSectionXRanges, animals, gameTimeIncrement);
+    game = new Game(gameSaveName, gameBgImageNames, character,
+            'exitGame()', themeColors.mainBrown, themeColors.secondBrown,
+            crntVersion, blocks, mapSectionXRanges,
+            animals, new Range(0, mapCols * blockSizeCm), wildAnimalSpawnChances, createWildAnimalFunctions,
+            maxWildAnimalAmounts, 
+            gameTimeIncrement);
+
     saveGame(game);
     startGame(game);
 }

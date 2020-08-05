@@ -47,6 +47,8 @@ class Game {
         this.setupPauseMenu();
         this.setupInventoryMenu();
 
+        this.cheatsOn = false;
+
         addClassName(this, 'Game');
     }
 
@@ -307,6 +309,22 @@ class Game {
         if (this.hud.inventoryButton.mouseHovering()) {
             this.toggleInventoryMenu();
         }
+        if (this.hud.cheatButton.mouseHovering()) {
+            if (! this.cheatsOn) {
+                this.character.mainItem.hitPower2 = this.character.mainItem.hitPower;
+                this.character.mainItem.hitPower = 10;
+                this.timeOfDay = 0.5;
+                this.timeIncrement2 = this.timeIncrement;
+                this.timeIncrement = 0;
+                this.hud.cheatButton.setText('Turn Cheats Off');
+            }
+            else {
+                this.character.mainItem.hitPower = this.character.mainItem.hitPower2;
+                this.timeOfDay = 0.5;
+                this.timeIncrement = this.timeIncrement2;
+                this.hud.cheatButton.setText('Turn Cheats On');
+            }
+        }
     }
 
     // Keybinds
@@ -436,6 +454,10 @@ class Game {
             new p5.Vector(100, 30), 'Inventory', 20, scaleMult);
         this.hud.inventoryButton.setBgColor(this.mainThemeColor);
 
+        this.hud.cheatButton  = new SimpleButton(new p5.Vector(20, 10),
+            new p5.Vector(155, 30), 'Turn Cheats On', 20, scaleMult);
+        this.hud.cheatButton.setBgColor(this.mainThemeColor);
+
         this.hud.healthMeter = new Label(new p5.Vector(widthCm - 140, heightCm - 40),
             'Health: ' + this.character.health, 30, scaleMult);
     }
@@ -494,10 +516,12 @@ class Game {
         this.inventoryMenu.addChild(exitButton);
         this.inventoryMenu.linkChild(exitButton, 'exitButton');
 
-        var centerPanelSize = new p5.Vector(inventoryMenuSize.x / 3, inventoryMenuSize.y - 100);
+        var centerPanelSize = new p5.Vector(inventoryMenuSize.x / 3, inventoryMenuSize.y - 150);
         var centerPanelPos = new p5.Vector(inventoryMenuSize.x / 3, 100);
         var centerPanel = new InventoryPanel(this.character.inventory, centerPanelPos,
             centerPanelSize, 15, 5, scaleMult);
+        centerPanel.setBorderColor(this.mainThemeColor);
+        centerPanel.setBorderWidth(3);
         this.inventoryMenu.addChild(centerPanel);
         this.inventoryMenu.linkChild(centerPanel, 'centerPanel');
 

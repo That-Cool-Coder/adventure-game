@@ -1,4 +1,23 @@
-#p5_loading {
-    font-size: 40px;
+html, body {
+    background-color: black;
     text-align: center;
+    height: 90%;
+}
+
+#p5_loading {
+    background-color: black;
+    height: 100%;
+}
+
+#loadingText {
+    position: relative;
+    top: 50%;
+    -ms-transform: translateY(-50%);
+    -webkit-transform: translateY(-50%);
+    transform: translateY(-50%);
+
+    font-size: 70px;
+    text-align: center;
+    color: white;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
 }

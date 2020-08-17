@@ -1,12 +1,13 @@
 class Block {
-    constructor(topLeftPosCm, sizeCm, normImageName, excvImageName,
-        resourceContent=[], strength=15, maxStrength=strength,
+    constructor(topLeftPosCm, sizeCm, normImageName, excvImageName, soundNames={},
+        resourceContent=[], strength=15, strengthRechargeRate=0, maxStrength=strength,
         isIndestructible=false, isExcavated=false) {
         
         this.positionCm = new p5.Vector(topLeftPosCm.x, topLeftPosCm.y);
         this.sizeCm = new p5.Vector(sizeCm.x, sizeCm.y);
         this.strength = strength;
         this.maxStrength = maxStrength;
+        this.strengthRechargeRate = strengthRechargeRate;
 
         this.resourceContent = resourceContent;
 
@@ -16,7 +17,9 @@ class Block {
         this.isExcavated = isExcavated;
         this.isIndestructible = isIndestructible;
 
-        this.hitLastFrame = false;
+        // Sound names currently supported:
+        // onHit, onExcavate
+        this.soundNames = soundNames;
 
         addClassName(this, 'Block');
     }
@@ -42,7 +45,7 @@ class Block {
             image(imageToDraw, 0, 0, this.sizeCm.x, this.sizeCm.y);
             // If it needs to look crumbling, translate then draw a second image
             // Don't just draw one image or gaps appear
-            if (this.strength > 0 && this.strength != this.maxStrength) {
+            if (this.strength > 0 && this.strength != this.maxStrength && ! this.isExcavated) {
                 this.translateForWeakeningEffect();
                 image(imageToDraw, 0, 0, this.sizeCm.x, this.sizeCm.y);
             }
@@ -56,23 +59,34 @@ class Block {
     }
 
     hit(tool, totalBlocksHit=1) {
-        // if multiple blocks are being hit, deal a smaller amount of damage to each
-        if (! this.isIndestructible) {
-            this.strength -= tool.hitPower / totalBlocksHit;
-        }
+        if (! this.isExcavated) {
+            // if multiple blocks are being hit, deal a smaller amount of damage to each
+            if (! this.isIndestructible) {
+                this.strength -= tool.hitPower / totalBlocksHit;
+            }
 
-        var wasExcavatedNow = false;
+            var wasExcavatedNow = false;
 
-        if (this.strength <= 0 && ! this.isExcavated && ! this.isIndestructible) {
-            this.strength = 0;
-            this.isExcavated = true;
-            wasExcavatedNow = true;
-        }
-        else {
-            this.hitLastFrame = true;
-        }
+            if (this.strength <= 0 && ! this.isIndestructible) {
+                this.excavate();
+                wasExcavatedNow = true;
+            }
+            else {
+                if (this.soundNames.onHit !== undefined) {
+                    sounds[this.soundNames.onHit].play();
+                }
+            }
 
-        return wasExcavatedNow;
+            return wasExcavatedNow;
+        }
+    }
+
+    excavate() {
+        this.strength = 0;
+        this.isExcavated = true;
+        if (this.soundNames.onExcavate !== undefined) {
+            sounds[this.soundNames.onExcavate].play();
+        }
     }
 
     takeResources() {
@@ -141,9 +155,7 @@ class Block {
     }
 
     housekeeping() {
-        if (! this.hitLastFrame) {
-            this.strength = this.maxStrength;
-        }
-        this.hitLastFrame = false;
+        if (this.strength < this.maxStrength) this.strength += this.strengthRechargeRate;
+        else this.strength = this.maxStrength;
     }
 }

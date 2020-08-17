@@ -7,6 +7,8 @@ const cHeight = scaleMult * heightCm;
 
 const gameSaveName = 'unnamedGame';
 
+var initialScreenStartButton;
+
 const imageUrls = {
     dirtBlockNorm : 'images/blocks/dirtBlockNorm.png',
     dirtBlockExcv : 'images/blocks/dirtBlockExcv.png',
@@ -30,19 +32,40 @@ const imageUrls = {
     seaBluePixel : 'images/colors/seablue.png',
 
     titleScreenBg : 'images/titleScreenBg.png'
-}
+};
+
+const soundUrls = {
+    mainLoop : 'sounds/mainLoop.mp3',
+    titleScreen : 'sounds/titleScreen.mp3',
+    boarDie : 'sounds/animals/boarDie.mp3',
+    sadTrombone : 'sounds/sadTrombone.wav',
+    characterDamageTaken : 'sounds/knifeStab.mp3',
+    gravel : 'sounds/gravel.wav'
+};
 
 var images = {}; // object to hold all of the images used in the game (in p5-format)
 
+var sounds = {}; // object to hold all of the sounds used in the game (in p5-format)
+
 new p5();
+
 function preload() {
     // load all of the images and add them to the image object
+    loadAssets(imageUrls, loadImage, images);
+    // load all of the sounds and add them to the sound object
+    loadAssets(soundUrls, loadSound, sounds)
+}
 
-    var keys = Object.keys(imageUrls);
-    var values = Object.values(imageUrls);
+function loadAssets(inputUrls, loadFunc, outputDict) {
+    // Load all of the assets from the urls in inputUrls
+    // using the function loadFunc, and set the keys of outputDict
+    // to keys of inputUrls then set the data to the loaded assets
+
+    var keys = Object.keys(inputUrls);
+    var values = Object.values(inputUrls);
 
     for (var i = 0; i < keys.length; i ++) {
-        images[keys[i]] = loadImage(values[i]);
+        outputDict[keys[i]] = loadFunc(values[i]);
     }
 }
 
@@ -56,6 +79,24 @@ function setup() {
     frameRate(fps);
 }
 
+function createInitialScreen() {
+    var size = new p5.Vector(150, 50);
+    var pos = new p5.Vector(widthCm / 2, heightCm / 2).sub(p5.Vector.div(size, 2));
+    initialScreenStartButton = new SimpleButton(pos, size, 'Start', 40, scaleMult);
+    initialScreenStartButton.setBgColor(themeColors.mainBrown);
+    initialScreenStartButton.setBorderColor(themeColors.secondBrown);
+}
+
+function showInitialScreen() {
+    initialScreenStartButton.draw();
+}
+
+function initialScreenButtonChecks() {
+    if (initialScreenStartButton.mouseHovering()) {
+        goToTitleScreen();
+    }
+}
+
 function goToTitleScreen() {
     draw = () => {
         background(0);
@@ -64,6 +105,8 @@ function goToTitleScreen() {
     titleScreen.reset();
     crntButtonChecks = () => titleScreen.crntButtonChecks();
     crntOnPressKeybinds = doNothing;
+    sounds.mainLoop.stop();
+    sounds.titleScreen.loop();
 }
 
 function exitGame() {
@@ -80,6 +123,8 @@ function startGame(gameToStart) {
         }
         crntButtonChecks = () => game.crntButtonChecks();
         crntOnPressKeybinds = () => game.crntOnPressKeybinds();
+        sounds.titleScreen.stop();
+        sounds.mainLoop.loop();
     }
     else {
         console.warn('Warning: Attempted to start null game');
@@ -128,13 +173,13 @@ function keyPressed() {
     crntOnPressKeybinds();
 }
 
-// Make title screen and set it to the current screen
+// Make title screen
 var titleScreen = new TitleScreen(fps, 'titleScreenBg', 
     imageSizesCm.titleScreenBg, 'startUnnamedGame()', 'startNewGame()');
 
-var draw;
-var crntButtonChecks;
-var crntOnPressKeybinds;
+// Make the screen that says start (needed for playing sound) and go to it
+createInitialScreen();
+var draw = showInitialScreen;
+var crntButtonChecks = initialScreenButtonChecks;
+var crntOnPressKeybinds = () => {};
 var game;
-
-goToTitleScreen();

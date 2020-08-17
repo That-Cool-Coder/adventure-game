@@ -3,12 +3,12 @@ const wildAnimalSpecies = [
 ];
 
 class WildAnimal extends Character {
-    constructor(name, positionCm, sizeCm, moveSpeedCm, imageNames,
+    constructor(name, positionCm, sizeCm, moveSpeedCm, jumpStrength, gravityStrength, imageNames,
         maxHealth, maxStamina, staminaRechargeRate, characterDetectDist,
-        attackTool, alive) {
+        attackTool, alive, onDieFunc, soundNames) {
 
-        super(name, positionCm, sizeCm, moveSpeedCm, imageNames, maxHealth, 0,
-            maxStamina, staminaRechargeRate, alive, attackTool, null, null);
+        super(name, positionCm, sizeCm, moveSpeedCm, jumpStrength, gravityStrength, imageNames, maxHealth, 0,
+            maxStamina, staminaRechargeRate, alive, onDieFunc, attackTool, null, null, soundNames);
 
         this.attackTool = attackTool;
         this.characterDetectDist = characterDetectDist;
@@ -31,6 +31,9 @@ class WildAnimal extends Character {
             this.attackCharacter(characterToChase);
         }
 
+        this.positionCm.x += this.velocityCm.x;
+        this.positionCm.y += this.velocityCm.y;
+
         //this.avoidCliffs(blocks);
         this.collideBlocks(blocks);
 
@@ -44,7 +47,7 @@ class WildAnimal extends Character {
         scale(scaleMult);
 
         translate(this.positionCm.x, this.positionCm.y);
-        translate(translationCm);
+        translate(translationCm.x, translationCm.y);
 
         noStroke();
 
@@ -79,9 +82,9 @@ class WildAnimal extends Character {
 
     attackCharacter(character) {
         // Do damage to the character (assuming that the character is being touched)
-        if (this.stamina >= this.attackTool.staminaToUse) {
+        if (this.canUseItemYet(this.attackTool)) {
             character.hit(this.attackTool.hitPower);
-            this.stamina -= this.attackTool.staminaToUse;
+            this.setItemNextUse(this.mainItem);
         }
     }
 

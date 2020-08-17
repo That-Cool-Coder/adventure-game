@@ -50,8 +50,8 @@ function makeColumn(col, terrainHeight, stoneDepth) {
         var block = new Block(
             new p5.Vector(col * blockSizeCm, stoneRow * -blockSizeCm), // pos
             new p5.Vector(blockSizeCm, blockSizeCm), // size
-            'stoneBlockNorm', 'stoneBlockExcv', // images
-            makeRandomResourceContent(), stoneBlockStrength); // other
+            'stoneBlockNorm', 'stoneBlockExcv', stoneBlockSoundNames, // images/sound
+            makeRandomResourceContent(), stoneBlockStrength, stoneBlockStrengthRechargeRate); // other
         blocks.push(block);
     }
 
@@ -60,8 +60,8 @@ function makeColumn(col, terrainHeight, stoneDepth) {
         var block = new Block(
             new p5.Vector(col * blockSizeCm, dirtRow * -blockSizeCm), // pos
             new p5.Vector(blockSizeCm, blockSizeCm),  // size
-            'dirtBlockNorm', 'dirtBlockExcv', // images
-            [], dirtBlockStrength); // other
+            'dirtBlockNorm', 'dirtBlockExcv', dirtBlockSoundNames, // images/sound
+            [], dirtBlockStrength, dirtBlockStrengthRechargeRate); // other
         blocks.push(block);
     }
     // Make the top block in each column be a grass block by appearance
@@ -83,7 +83,7 @@ function makeBedrock() {
     var bedrock = new Block(
         new p5.Vector(0, blockSizeCm), // pos
         new p5.Vector(blockSizeCm * mapCols, heightCm), // size
-        'grey20Pixel', 'grey20Pixel', [], 0, 0, true
+        'grey20Pixel', 'grey20Pixel', bedrockSoundNames, [], 0, 0, 0, true
     );
     return bedrock;
 }
@@ -92,13 +92,13 @@ function makeSeaBlocks() {
     var leftSideBlock = new Block(
         new p5.Vector(-widthCm, -(startTerrainHeight - 2) * blockSizeCm), // pos
         new p5.Vector(widthCm, startTerrainHeight * blockSizeCm + heightCm), // size
-        'seaBluePixel', 'seaBluePixel', [], 0, 0, true
+        'seaBluePixel', 'seaBluePixel', seaSoundNames, [], 0, 0, 0, true
     );
 
     var rightSideBlock = new Block(
         new p5.Vector(mapCols * blockSizeCm, -(startTerrainHeight - 2) * blockSizeCm), // pos
         new p5.Vector(widthCm, startTerrainHeight * blockSizeCm + heightCm), // size
-        'seaBluePixel', 'seaBluePixel', [], 0, 0, true
+        'seaBluePixel', 'seaBluePixel', seaSoundNames, [], 0, 0, 0, true
     );
 
     return [leftSideBlock, rightSideBlock];
@@ -108,7 +108,7 @@ function makeWildAnimals() {
     var wildAnimals = [];
     for (var col = 0; col < mapCols; col ++) {
         if (Math.random() < boarChance) {
-            var boar = new Boar(new p5.Vector(blockSizeCm * col, -1500));
+            var boar = new Boar(new p5.Vector(blockSizeCm * col, -1500), gravityStrength);
             wildAnimals.push(boar);
         }
     }

@@ -4,6 +4,15 @@
 const blockSizeCm = 50;
 const mapCols = 150;
 
+const dirtBlockSoundNames = {
+    onExcavate : 'gravel'
+}
+
+const stoneBlockSoundNames = dirtBlockSoundNames;
+
+const bedrockSoundNames = {};
+const seaSoundNames = {};
+
 const minTerrainHeight = 20;
 const maxTerrainHeight = 27;
 const startTerrainHeight = 24;
@@ -16,6 +25,8 @@ const hillyness = 0.3;
 
 const dirtBlockStrength = 15;
 const stoneBlockStrength = 30;
+const dirtBlockStrengthRechargeRate = 0.1;
+const stoneBlockStrengthRechargeRate = 0.1;
 
 const coalChance = 1/10;
 const boarChance = 1/15;
@@ -23,18 +34,30 @@ const boarChance = 1/15;
 const gameTimeIncrement = 1/18000;
 const gameBgImageNames = 'bgImage';
 
+const gravityStrength = 0.5;
+
 // Character
 const characterName = 'Pete';
 const characterStartPos = new p5.Vector(0, -startTerrainHeight * blockSizeCm);
 const characterSizeCm = new p5.Vector(30, 50);
 const characterSpeed = 3;
+const characterJumpStrength = 7;
 const characterMaxHealth = 100;
 const characterHealRate = 0.02;
 const characterMaxStamina = 100;
-const characterImageNames = {left : 'characterIdle',
+const characterOnDie = () => {
+    noLoop();
+    document.write('<h1>R.I.P. You died!');
+}
+const characterImageNames = {
+    left : 'characterIdle',
     right : 'characterIdle',
     up : 'characterIdle',
     down : 'characterIdle'};
+const characterSoundNames = {
+    onDamageTaken : 'characterDamageTaken',
+    onDie : 'sadTrombone'
+}
 
 // Wild animals
 const wildAnimalSpawnChances = {
@@ -42,15 +65,19 @@ const wildAnimalSpawnChances = {
 };
 
 const createWildAnimalFunctions = {
-    'boar' : pos => new Boar(pos)
+    'boar' : pos => new Boar(pos, gravityStrength)
 };
 
 const maxWildAnimalAmounts = {
     'boar' : 25
 }
 
-const oldestCompatibleVersion = 20;
-const crntVersion = 20;
+const wildAnimalOnDieFuncs = {
+    'boar' : () => {}
+}
+
+const oldestCompatibleVersion = 25;
+const crntVersion = 25;
 
 const mapSectionWidthCm = 500;
 const mapSectionOverlapCm = 100;
@@ -66,25 +93,26 @@ for (var i = 0; i < mapCols * blockSizeCm / mapSectionWidthCm; i ++) {
 }
 // Make upper bound
 mapSectionXRanges.push(new Range(i * mapSectionWidthCm - mapSectionOverlapCm, 
-        10000));
+    10000));
 
 function startNewGame() {
     var blocks = makeTerrain();
     var animals = makeWildAnimals();
     var tool = new Tool('Pickaxe', 10, new p5.Vector(30, 30),
-        'pickaxe', 0.5, new p5.Vector(30, 10));
+        'pickaxe', 10, new p5.Vector(30, 10), 30);
     var inventory = new Inventory(100, 50);
 
     var character = new Character(characterName, characterStartPos, 
-        characterSizeCm, characterSpeed, characterImageNames,
-        characterMaxHealth, characterHealRate, characterMaxStamina, 0, true, tool, tool, inventory);
+        characterSizeCm, characterSpeed, characterJumpStrength, gravityStrength, characterImageNames,
+        characterMaxHealth, characterHealRate, characterMaxStamina, 0,
+        true, characterOnDie, tool, tool, inventory, characterSoundNames);
 
     game = new Game(gameSaveName, gameBgImageNames, character,
-            'exitGame()', themeColors.mainBrown, themeColors.secondBrown,
-            crntVersion, blocks, mapSectionXRanges,
-            animals, new Range(0, mapCols * blockSizeCm), wildAnimalSpawnChances, createWildAnimalFunctions,
-            maxWildAnimalAmounts, 
-            gameTimeIncrement);
+        'exitGame()', themeColors.mainBrown, themeColors.secondBrown,
+        crntVersion, blocks, mapSectionXRanges,
+        animals, new Range(0, mapCols * blockSizeCm), wildAnimalSpawnChances, createWildAnimalFunctions,
+        maxWildAnimalAmounts, 
+        gameTimeIncrement);
 
     saveGame(game);
     startGame(game);

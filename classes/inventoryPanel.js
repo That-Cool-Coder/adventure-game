@@ -7,14 +7,30 @@ class InventoryPanel extends Panel {
         this.itemPadding = itemPadding;
 
         this.updateInventory(inventory);
+        this.inventory = inventory;
     }
 
     updateInventory(newInventory) {
+        // Save the inventory and make the new buttons for it 
+
         this.inventory = newInventory;
-        this.setupButtonsAndImages();
+        this.setupItemImages();
+    }
+    
+    buttonChecks() {
+        // Curently, alert what item is being on clicked on
+
+        this.children.forEach(child => {
+            if (child.mouseHovering()) {
+                var index = this.children.indexOf(child);
+                alert(`You clicked on ${this.inventory.items[index].name}`)
+            }
+        })
     }
 
-    setupButtonsAndImages() {
+    setupItemImages() {
+        // Figure out the layout and create all of the buttons
+
         this.removeChildren();
         this.itemsPerRow = Math.floor((this.size.x - this.itemPadding) / (this.itemSize + this.itemPadding));
         this.fullRows = Math.floor(this.inventory.items.length / this.itemsPerRow) // how many full rows there are
@@ -23,26 +39,27 @@ class InventoryPanel extends Panel {
         this.itemsInLastRow = this.inventory.items.length % this.itemsPerRow;
         this.totalItemSize = this.itemSize + this.itemPadding;
 
+        // Make the rectangular area of complete rows
         for (var row = 0; row < this.fullRows; row ++) {
             for (var col = 0; col < this.itemsPerRow; col ++) {
-                this._makeButtonAndImage(row, col);
+                this._makeItemImage(row, col);
             }
         }
 
+        // Make the final partially-complete row
         for (var col = 0; col < this.itemsInLastRow; col ++) {
-            this._makeButtonAndImage(this.totalRows - 1, col);
+            this._makeItemImage(this.totalRows - 1, col);
         }
     }
 
-    _makeButtonAndImage(row, col) {
+    _makeItemImage(row, col) {
+        // Create an image in the right position to display an item
+
         var pos = new p5.Vector(col * this.totalItemSize + this.itemPadding, row * this.totalItemSize + this.itemPadding);
         var size = new p5.Vector(this.itemSize, this.itemSize);
         var idx = row * this.itemsPerRow + col;
-
-        var button = new SimpleButton(pos, size, '', 0, this.scaleMult);
         var image = new SimpleImage(pos, size, this.inventory.items[idx].imageName, this.scaleMult);
         
         this.addChild(image);
-        this.addChild(button);
     }
 }

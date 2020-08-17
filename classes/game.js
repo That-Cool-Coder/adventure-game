@@ -148,8 +148,7 @@ class Game {
     updateShowingInventory() {
         // Loop for when the game is showing the character's inventory
 
-        //this.inventoryMenu.itemCounter.setText(this.character.inventory.items.length + 
-            //' items in inventory');
+        this.updateInventoryMenu();
         
         // Drawing game content
         this.drawBg();
@@ -188,9 +187,10 @@ class Game {
         });
     }
 
-    drawWildAnimals() {
+    drawWildAnimals(translationCm) {
         var translation = new p5.Vector(-this.character.positionCm.x, -this.character.positionCm.y);
         translation.sub(this.character.sizeCm.x / 2, this.character.sizeCm.y / 2);
+        translation.add(translationCm);
 
         this.wildAnimals.forEach(animal => {
             animal.draw(translation);
@@ -276,7 +276,7 @@ class Game {
 
     drawInventoryMenu() {
         this.inventoryMenu.draw();
-        this.inventoryMenu.centerPanel.updateInventory(this.character.inventory);
+       // this.inventoryMenu.centerPanel.itemShower.updateInventory(this.character.inventory);
     }
 
     // Button click checking
@@ -299,6 +299,7 @@ class Game {
         if (this.inventoryMenu.exitButton.mouseHovering()) {
             this.closeInventoryMenu();
         }
+        this.inventoryMenu.centerPanel.itemPanel.buttonChecks();
     }
 
     checkHudButtons() {
@@ -375,6 +376,18 @@ class Game {
         // Update the displays on the HUD
 
         this.hud.healthMeter.text = 'Health: ' + Math.floor(this.character.health);
+    }
+
+    updateInventoryMenu() {
+        var text = `${this.character.inventory.itemCount()} items in inventory ` + 
+            `(${this.character.inventory.maxItemAmount} max)`
+        this.inventoryMenu.centerPanel.itemCounter.setText(text);
+
+        var text = `Weight of items: ${this.character.inventory.crntWeight()} ` + 
+            `(${this.character.inventory.maxWeight} max)`;
+        this.inventoryMenu.centerPanel.weightCounter.setText(text);
+
+        this.inventoryMenu.centerPanel.itemPanel.updateInventory(this.character.inventory);
     }
     
     deleteDeadAnimals() {
@@ -498,16 +511,37 @@ class Game {
             inventoryMenuSize, layoutStyles.relativePosition, scaleMult);
         this.inventoryMenu.setBgColor(this.secondaryColor);
 
-        var heading = new Label(new p5.Vector(centerX, 40),
+        var heading = new Label(new p5.Vector(centerX, 20),
             'Inventory', 25, scaleMult);
         heading.setTextColor([100, 100, 100]);
         this.inventoryMenu.addChild(heading);
 
-        var counter = new Label(new p5.Vector(centerX, 80),
-            '0 items in inventory', 15, scaleMult);
-        counter.setTextColor([100, 100, 100]);
-        //this.inventoryMenu.addChild(counter);
-        //this.inventoryMenu.linkChild(counter, 'itemCounter');
+
+        var centerPanelSize = new p5.Vector(inventoryMenuSize.x / 3, inventoryMenuSize.y - 80);
+        var centerPanelPos = new p5.Vector(inventoryMenuSize.x / 3, 50);
+        var centerPanel = new Panel(centerPanelPos,
+            centerPanelSize, layoutStyles.verticalRow, scaleMult);
+        centerPanel.setBorderColor(this.mainThemeColor);
+        centerPanel.setBorderWidth(3);
+        this.inventoryMenu.addChild(centerPanel);
+        this.inventoryMenu.linkChild(centerPanel, 'centerPanel');
+
+        var itemCounter = new Label(new p5.Vector(0, 0),
+            '', 12, scaleMult);
+        itemCounter.setTextColor([100, 100, 100]);
+        this.inventoryMenu.centerPanel.addChild(itemCounter, 15);
+        this.inventoryMenu.centerPanel.linkChild(itemCounter, 'itemCounter');
+
+        var weightCounter = new Label(new p5.Vector(0, 0),
+            '', 12, scaleMult);
+        weightCounter.setTextColor([100, 100, 100]);
+        this.inventoryMenu.centerPanel.addChild(weightCounter, 15);
+        this.inventoryMenu.centerPanel.linkChild(weightCounter, 'weightCounter');
+
+        var itemPanel = new InventoryPanel(this.character.inventory, new p5.Vector(0, 0),
+            p5.Vector.sub(centerPanelSize, new p5.Vector(10, 150)), 12, 2, scaleMult);
+        this.inventoryMenu.centerPanel.addChild(itemPanel, 15);
+        this.inventoryMenu.centerPanel.linkChild(itemPanel, 'itemPanel');
 
         var exitButton = new SimpleButton(new p5.Vector(inventoryMenuSize.x - 60, 5),
             new p5.Vector(40, 30), 'Exit', 20, scaleMult);
@@ -515,15 +549,6 @@ class Game {
         exitButton.setBgColor(this.mainThemeColor);
         this.inventoryMenu.addChild(exitButton);
         this.inventoryMenu.linkChild(exitButton, 'exitButton');
-
-        var centerPanelSize = new p5.Vector(inventoryMenuSize.x / 3, inventoryMenuSize.y - 150);
-        var centerPanelPos = new p5.Vector(inventoryMenuSize.x / 3, 100);
-        var centerPanel = new InventoryPanel(this.character.inventory, centerPanelPos,
-            centerPanelSize, 15, 5, scaleMult);
-        centerPanel.setBorderColor(this.mainThemeColor);
-        centerPanel.setBorderWidth(3);
-        this.inventoryMenu.addChild(centerPanel);
-        this.inventoryMenu.linkChild(centerPanel, 'centerPanel');
 
         this.setupCraftingPanel();
     }

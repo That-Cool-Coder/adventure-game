@@ -4,18 +4,23 @@ const directions = {
     up : 'up',
     down : 'down'
 }
+
 class Character {
-    constructor(name, positionCm, sizeCm, moveSpeedCm, imageNames,
-        maxHealth, healRate, maxStamina, staminaRechargeRate, alive=true,
-        mainItem=null, secondaryItem=null, inventory=null) {
+    constructor(name, positionCm, sizeCm, moveSpeedCm, jumpStrength, gravityStrength, imageNames,
+        maxHealth, healRate, maxStamina, staminaRechargeRate, alive=true, onDieFunc=()=>{},
+        mainItem=null, secondaryItem=null, inventory=null, soundNames={}) {
 
         this.name = name;
         this.positionCm = new p5.Vector(positionCm.x, positionCm.y);
+        this.velocityCm = new p5.Vector(0, 0);
         this.sizeCm = new p5.Vector(sizeCm.x, sizeCm.y);
         this.moveSpeedCm = moveSpeedCm; // not a vector
+        this.jumpStrength = jumpStrength;
+        this.gravityStrength = gravityStrength;
         this.imageNames = imageNames;
 
         this.alive = alive;
+        this.onDieFunc = onDieFunc;
 
         this.maxHealth = maxHealth;
         this.health = maxHealth;
@@ -26,6 +31,10 @@ class Character {
         this.staminaRechargeRate = staminaRechargeRate;
 
         this.inventory = inventory;
+
+        // Currently accepted sound names types:
+        // onDamageTaken, onDie
+        this.soundNames = soundNames;
 
         this.direction = directions.right;
 
@@ -39,16 +48,25 @@ class Character {
     // ---------
 
     equipMain(item) {
-        if (item !== null) this.mainItem = item;
+        if (item !== null) {
+            this.mainItem = item;
+            this.setItemNextUse(this.mainItem);
+        }
     }
 
     equipSecondary(item) {
-        if (item !== null) this.secondaryItem = item;
+        if (item !== null) {
+            this.secondaryItem = item;
+            this.setItemNextUse(this.secondaryItem);
+        }
     }
 
     useMain(blocks, wildAnimals) {
-        this.mine(blocks);
-        this.attackWildAnimals(wildAnimals);
+        if (this.canUseItemYet(this.mainItem)) {
+            this.mine(blocks);
+            this.attackWildAnimals(wildAnimals);
+            this.setItemNextUse(this.mainItem);
+        }
     }
 
     useSecondary() {
@@ -56,7 +74,7 @@ class Character {
     }
 
     mine(blocks) {
-        if (this.mainItem !== null) {
+        if (this.mainItem !== null && this.canUseItemYet(this.mainItem)) {
             var touchingBlocks = this.getBlocksBeingMined(blocks);
             var blockHitAmount = touchingBlocks.length
             for (var blockIdx = 0; blockIdx < touchingBlocks.length; blockIdx ++) {
@@ -71,6 +89,10 @@ class Character {
         }
     }
 
+    jump() {
+        this.velocityCm.y = -this.jumpStrength;
+    }
+
     hit(damage, totalThingsHit=1) {
         // if multiple things are being hit, deal a smaller amount of damage to each
         this.health -= damage / totalThingsHit;
@@ -81,6 +103,12 @@ class Character {
             this.die();
         }
 
+        else {
+            if (this.soundNames.onDamageTaken !== undefined) {
+                sounds[this.soundNames.onDamageTaken].play();
+            }
+        }
+
         return wasKilledNow;
     }
 
@@ -88,6 +116,10 @@ class Character {
         this.health = 0;
         this.stamina = 0;
         this.alive = false;
+        if (this.soundNames.onDie !== undefined) {
+            sounds[this.soundNames.onDie].play();
+        }
+        this.onDieFunc();
     }
 
     // Main movement
@@ -101,7 +133,10 @@ class Character {
 
         var isUnderground = this.isHittingExcavatedBlock(blocks);
         if (isUnderground) this.undergroundMovement();
-        else this.fall(blocks);
+        this.fall(blocks);
+
+        this.positionCm.x += this.velocityCm.x;
+        this.positionCm.y += this.velocityCm.y;
 
         this.heal();
         this.rechargeStamina();
@@ -200,7 +235,7 @@ class Character {
 
     fall(blocks) {
         if (! this.isTouchingBlockBeneath(blocks)) {
-            this.positionCm.y += 6;
+            this.velocityCm.y += this.gravityStrength;
         }
     }
 
@@ -240,6 +275,7 @@ class Character {
             var bottomSideOverlapSize = bottomSideOverlap(this.positionCm, this.sizeCm,
                 block.positionCm, block.sizeCm);
             this.positionCm.y += bottomSideOverlapSize;
+            this.velocityCm.y = 0;
         }
     }
 
@@ -420,6 +456,8 @@ class Character {
         if (keyIsDown(DOWN_ARROW)) {
             this.positionCm.y += this.moveSpeedCm * this.goFasterOnShift(2);
         }
+
+        this.velocityCm.y = 0;
     }
 
     generalKeybinds(blocks, wildAnimals) {
@@ -429,6 +467,16 @@ class Character {
 
         if (keyIsDown(RIGHT_ARROW)) {
             this.positionCm.x += this.moveSpeedCm * this.goFasterOnShift(2);
+        }
+
+        if (keyIsDown(UP_ARROW)) {
+            if (this.isTouchingBlockBeneath(blocks) ||
+                this.isHittingExcavatedBlock(blocks) ||
+                this.isTouchingBlockBeneath(wildAnimals)) {
+
+                this.positionCm.y -= 2;
+                this.jump();
+            }
         }
 
         if (keyIsDown(90)) { // 'z'
@@ -491,5 +539,17 @@ class Character {
     rechargeStamina() {
         this.stamina += this.staminaRechargeRate;
         if (this.stamina > this.maxStamina) this.stamina = this.maxStamina;
+    }
+
+    setItemNextUse(item) {
+        if (item !== null) {
+            item.nextUseTime = frameCount + item.timeBetweenUse;
+        }
+    }
+
+    canUseItemYet(item) {
+        if (item !== null) {
+            return frameCount >= item.nextUseTime;
+        }
     }
 }

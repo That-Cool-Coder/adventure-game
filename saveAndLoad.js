@@ -59,6 +59,7 @@ function efficientlyStringifyGame(gameToStringify) {
         timeOfDay : gameData.timeOfDay,
         autoSaveInterval : gameData.autoSaveInterval
     }
+    
     var stringifiedGame = JSON.stringify(smallGameToStringify);
 
     return stringifiedGame;
@@ -107,6 +108,7 @@ function loadWildAnimals(gameData) {
     
     gameData.wildAnimals.forEach(animal => {
         Object.setPrototypeOf(animal, WildAnimal.prototype);
+        animal.onDieFunc = wildAnimalOnDieFuncs[animal.species];
     });
 }
 
@@ -116,6 +118,7 @@ function loadCharacter(gameData) {
     var oldCharacter = gameData.character;
     var inventory = loadInventory(gameData);
     Object.setPrototypeOf(oldCharacter, Character.prototype);
+    oldCharacter.onDieFunc = characterOnDie; // add this method that was removed by JSON.stringify
 }
 
 function loadInventory(gameData) {

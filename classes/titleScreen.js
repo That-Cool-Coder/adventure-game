@@ -20,9 +20,14 @@ class TitleScreen {
 
         // Random other stuff
 
-        // Make the background and menus slide to one side to change playMenuSize
         this.viewPanCm = new p5.Vector(0, 0);
-        this.viewPanDistCm = new p5.Vector(-widthCm, 0);
+
+        // Make the background and menus slide to one side to change menus
+        this.slidingBetweenMenus = false;
+        this.maxMenuSlideVel = 20;
+        this.crntMenuSlideVel = 0;
+        this.menuSlideAccel = 0;
+        this.menuSlideRange = new Range(-widthCm, 0);
 
         this.crntButtonChecks = () => {
             this.checkStartScreenButtons();
@@ -117,8 +122,8 @@ class TitleScreen {
     // ---------------
 
     goToStartScreen() {
-        this.viewPanCm.x = 0;
-        this.crntViewPanSpd = new p5.Vector(0, 0);
+        this.viewPanCm.x = this.menuSlideRange.max;
+        this.crntMenuSlideVel = 0;
         this.slidingBetweenMenus = false;
         this.crntButtonChecks = () => {
             this.checkStartScreenButtons();
@@ -126,8 +131,8 @@ class TitleScreen {
     }
 
     goToPlayMenu() {
-        this.viewPanCm.x = this.viewPanDistCm.x;
-        this.crntViewPanSpd = new p5.Vector(0, 0);
+        this.viewPanCm.x = this.menuSlideRange.min;
+        this.crntMenuSlideVel = 0;
         this.slidingBetweenMenus = false;
         this.crntButtonChecks = () => {
             this.checkPlayMenuButtons();
@@ -135,12 +140,12 @@ class TitleScreen {
     }
 
     beginSlideToStartScreen() {
-        this.crntViewPanSpd = new p5.Vector(0, 0);
+        this.crntMenuSlideVel = this.maxMenuSlideVel;
         this.slidingBetweenMenus = true;
     }
 
     beginSlideToPlayMenu() {
-        this.crntViewPanSpd = new p5.Vector(0, 0);
+        this.crntMenuSlideVel = -this.maxMenuSlideVel;
         this.slidingBetweenMenus = true;
     }
 
@@ -168,7 +173,7 @@ class TitleScreen {
     // ---------
 
     update() {
-        //if (this.slidingBetweenMenus) this.slideBetweenMenus();
+        if (this.slidingBetweenMenus) this.slideBetweenMenus();
 
         this.drawBgImage();
         this.drawStartMenu();
@@ -186,7 +191,7 @@ class TitleScreen {
         noStroke();
         scale(scaleMult);
 
-        translate(this.viewPanCm);
+        translate(this.viewPanCm.x, this.viewPanCm.y);
 
         var imageToDraw = images[this.bgImageName];
         image(imageToDraw, 0, 0, this.bgImageSize.x, this.bgImageSize.y);
@@ -219,7 +224,8 @@ class TitleScreen {
 
     checkStartScreenButtons() {
         if (this.startMenu.playButton.mouseHovering(this.viewPanCm)) {
-            this.goToPlayMenu();
+            //this.goToPlayMenu();
+            this.beginSlideToPlayMenu();
         }
     }
 
@@ -235,7 +241,8 @@ class TitleScreen {
             });
         }
         if (this.playMenu.backButton.mouseHovering(this.viewPanCm)) {
-            this.goToStartScreen();
+            //this.goToStartScreen();
+            this.beginSlideToStartScreen();
         }
     }
 
@@ -243,5 +250,21 @@ class TitleScreen {
     // -----
 
     slideBetweenMenus() {
+        var nextPos = this.viewPanCm.x + this.crntMenuSlideVel;
+
+        // If it's not at the end yet, keep sliding
+        if (this.menuSlideRange.min < nextPos && nextPos < this.menuSlideRange.max) {
+            this.viewPanCm.x += this.crntMenuSlideVel;
+        }
+        // Otherwise snap to the nearest side
+        else {
+            var midpoint = (this.menuSlideRange.min + this.menuSlideRange.max) / 2;
+            // If it's nearly to the right side
+            if (this.viewPanCm.x < midpoint) {
+                this.goToPlayMenu();
+            }
+            // If it's nearly to the left side
+            else this.goToStartScreen();
+        }
     }
 }

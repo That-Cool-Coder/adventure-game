@@ -30,6 +30,7 @@ const imageUrls = {
 
     grey20Pixel : 'images/colors/grey20.png',
     seaBluePixel : 'images/colors/seablue.png',
+    transparentPixel : 'images/colors/transparentPixel.png',
 
     titleScreenBg : 'images/titleScreenBg.png'
 };
@@ -40,7 +41,8 @@ const soundUrls = {
     boarDie : 'sounds/animals/boarDie.mp3',
     sadTrombone : 'sounds/sadTrombone.wav',
     characterDamageTaken : 'sounds/knifeStab.mp3',
-    gravel : 'sounds/gravel.wav'
+    gravel : 'sounds/gravel.wav',
+    clang : 'sounds/clang.wav'
 };
 
 var images = {}; // object to hold all of the images used in the game (in p5-format)

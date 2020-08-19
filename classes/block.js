@@ -139,9 +139,15 @@ class Block {
     }
 
     willBeOffscreen(viewPanCm) {
+        /*
+        This is the original code of the below paragraph, which has been simplified to speed it up
+        
         var sizeX = this.sizeCm.x * scaleMult;
         var xPosPx = (scaleMult * (viewPanCm.x + this.positionCm.x)) + cWidth / 2;
-        var xIsOff = (xPosPx < -sizeX || xPosPx > cWidth);
+        var xIsOff = (xPosPx < -sizeX || xPosPx > cWidth);*/
+
+        var xPosPx = (scaleMult * (viewPanCm.x + this.positionCm.x)) + cWidth / 2;
+        var xIsOff = xPosPx < -(this.sizeCm.x * scaleMult) || xPosPx > cWidth;
         
         if (! xIsOff) {
             var sizeY = this.sizeCm.y * scaleMult;

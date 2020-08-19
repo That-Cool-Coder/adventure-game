@@ -115,10 +115,14 @@ function loadWildAnimals(gameData) {
 function loadCharacter(gameData) {
     // Give the character prototype
 
-    var oldCharacter = gameData.character;
+    var character = gameData.character;
     var inventory = loadInventory(gameData);
-    Object.setPrototypeOf(oldCharacter, Character.prototype);
-    oldCharacter.onDieFunc = characterOnDie; // add this method that was removed by JSON.stringify
+    Object.setPrototypeOf(character, Character.prototype);
+    character.onDieFunc = characterOnDie; // add this method that was removed by JSON.stringify
+
+    // Reset counters on these items so that they can be used
+    character.equipMain(character.mainItem);
+    character.equipSecondary(character.secondaryItem);
 }
 
 function loadInventory(gameData) {

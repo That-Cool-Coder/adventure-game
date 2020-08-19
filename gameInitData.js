@@ -10,7 +10,9 @@ const dirtBlockSoundNames = {
 
 const stoneBlockSoundNames = dirtBlockSoundNames;
 
-const bedrockSoundNames = {};
+const bedrockSoundNames = {
+    onHit : 'clang'
+};
 const seaSoundNames = {};
 
 const minTerrainHeight = 20;
@@ -79,7 +81,7 @@ const wildAnimalOnDieFuncs = {
 const oldestCompatibleVersion = 25;
 const crntVersion = 25;
 
-const mapSectionWidthCm = 500;
+const mapSectionWidthCm = 100;
 const mapSectionOverlapCm = 100;
 const mapSectionXRanges = [];
 

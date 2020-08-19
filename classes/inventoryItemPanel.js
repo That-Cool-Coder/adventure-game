@@ -1,4 +1,4 @@
-class InventoryPanel extends Panel {
+class InventoryItemPanel extends Panel {
     constructor(inventory, topLeftPos, size, itemSize=10, itemPadding=2, scaleMult=1) {
         // Size is vector, itemSize is scalar as items are square
         super(topLeftPos, size, layoutStyles.relativePosition, scaleMult);
@@ -19,13 +19,14 @@ class InventoryPanel extends Panel {
     
     buttonChecks() {
         // Curently, alert what item is being on clicked on
+        var itemBeingClickedIdx = null;
 
         this.children.forEach(child => {
             if (child.mouseHovering()) {
-                var index = this.children.indexOf(child);
-                alert(`You clicked on ${this.inventory.items[index].name}`)
+                itemBeingClickedIdx = this.children.indexOf(child);
             }
-        })
+        });
+        return itemBeingClickedIdx;
     }
 
     setupItemImages() {

@@ -299,7 +299,7 @@ class Game {
         if (this.inventoryMenu.exitButton.mouseHovering()) {
             this.closeInventoryMenu();
         }
-        this.inventoryMenu.centerPanel.itemPanel.buttonChecks();
+        this.inventoryMenu.buttonChecks();
     }
 
     checkHudButtons() {
@@ -313,17 +313,19 @@ class Game {
         if (this.hud.cheatButton.mouseHovering()) {
             if (! this.cheatsOn) {
                 this.character.mainItem.hitPower2 = this.character.mainItem.hitPower;
-                this.character.mainItem.hitPower = 10;
+                this.character.mainItem.hitPower = 100;
                 this.timeOfDay = 0.5;
                 this.timeIncrement2 = this.timeIncrement;
                 this.timeIncrement = 0;
                 this.hud.cheatButton.setText('Turn Cheats Off');
+                this.cheatsOn = true;
             }
             else {
                 this.character.mainItem.hitPower = this.character.mainItem.hitPower2;
                 this.timeOfDay = 0.5;
                 this.timeIncrement = this.timeIncrement2;
                 this.hud.cheatButton.setText('Turn Cheats On');
+                this.cheatsOn = false;
             }
         }
     }
@@ -501,7 +503,9 @@ class Game {
     }
 
     setupInventoryMenu() {
-        // Setup panel for inventory-showing menu
+        this.inventoryMenu = new GameInventoryMenu(this.character.inventory,
+            this.mainThemeColor, this.secondaryColor);
+        /* // Setup panel for inventory-showing menu
         var inventoryMenuSize = new p5.Vector(widthCm * 0.9, heightCm * 0.9);
         var marginX = (widthCm - inventoryMenuSize.x) / 2;
         var marginY = (heightCm - inventoryMenuSize.y) / 2;
@@ -550,7 +554,7 @@ class Game {
         this.inventoryMenu.addChild(exitButton);
         this.inventoryMenu.linkChild(exitButton, 'exitButton');
 
-        this.setupCraftingPanel();
+        this.setupCraftingPanel(); */
     }
 
     setupCraftingPanel() {

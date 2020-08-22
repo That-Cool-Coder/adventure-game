@@ -164,6 +164,8 @@ class Game {
     }
 
     moveWildAnimals() {
+        // Loop through the wild animals and call move on them
+        
         this.wildAnimals.forEach(animal => {
             animal.move(this.mapSections, this.character);
         })
@@ -182,9 +184,23 @@ class Game {
         translation.sub(this.character.sizeCm.x / 2, this.character.sizeCm.y / 2);
         translation.add(translationCm);
 
-        this.blocks.forEach(block => {
-            block.draw(translation);
+        // Calculate the position required to be onscreen, and therefore drawn
+        var screenBoundsX = new Range(-translation.x - widthCm * 0.5, -translation.x + widthCm * 0.5);
+        var screenBoundsMin = new p5.Vector(screenBoundsX.min, 0);
+        var screenBoundsMax = new p5.Vector(screenBoundsX.max, 0);
+        
+        // Find which map sections to draw by checking if they overlap the screen bounds
+        var sectionsToDraw = [];
+        this.mapSections.forEach(section => {
+            if (section.overlapsArea(screenBoundsMin, screenBoundsMax)) {
+                sectionsToDraw.push(section);
+            }
         });
+
+        // Draw the blocks by looping through the sections
+        sectionsToDraw.forEach(section => {
+            section.blocks.forEach(block => block.draw(translation));
+        })
     }
 
     drawWildAnimals(translationCm) {
@@ -314,6 +330,8 @@ class Game {
             if (! this.cheatsOn) {
                 this.character.mainItem.hitPower2 = this.character.mainItem.hitPower;
                 this.character.mainItem.hitPower = 100;
+                this.character.mainItem.timeBetweenUse2 = this.character.mainItem.timeBetweenUse;
+                this.character.mainItem.timeBetweenUse = 0;
                 this.timeOfDay = 0.5;
                 this.timeIncrement2 = this.timeIncrement;
                 this.timeIncrement = 0;
@@ -322,6 +340,7 @@ class Game {
             }
             else {
                 this.character.mainItem.hitPower = this.character.mainItem.hitPower2;
+                this.character.mainItem.timeBetweenUse = this.character.mainItem.timeBetweenUse2;
                 this.timeOfDay = 0.5;
                 this.timeIncrement = this.timeIncrement2;
                 this.hud.cheatButton.setText('Turn Cheats On');
@@ -503,7 +522,7 @@ class Game {
     }
 
     setupInventoryMenu() {
-        this.inventoryMenu = new GameInventoryMenu(this.character.inventory,
+        this.inventoryMenu = new GameInventoryMenu(this.character,
             this.mainThemeColor, this.secondaryColor);
         /* // Setup panel for inventory-showing menu
         var inventoryMenuSize = new p5.Vector(widthCm * 0.9, heightCm * 0.9);

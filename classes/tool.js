@@ -9,6 +9,8 @@ class Tool extends Item {
         this.timeBetweenUse = timeBetweenUse;
         this.nextUseTime = 0; // the time at which it can be used again
 
+        this.actions.push(itemActions.equip);
+
         addClassName(this, 'Tool');
     }
 }

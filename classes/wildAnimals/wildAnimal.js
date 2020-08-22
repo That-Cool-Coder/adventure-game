@@ -10,7 +10,6 @@ class WildAnimal extends Character {
         super(name, positionCm, sizeCm, moveSpeedCm, jumpStrength, gravityStrength, imageNames, maxHealth, 0,
             maxStamina, staminaRechargeRate, alive, onDieFunc, attackTool, null, null, soundNames);
 
-        this.attackTool = attackTool;
         this.characterDetectDist = characterDetectDist;
 
         addClassName(this, 'WildAnimal');
@@ -82,8 +81,8 @@ class WildAnimal extends Character {
 
     attackCharacter(character) {
         // Do damage to the character (assuming that the character is being touched)
-        if (this.canUseItemYet(this.attackTool)) {
-            character.hit(this.attackTool.hitPower);
+        if (this.canUseItemYet(this.mainItem)) {
+            character.hit(this.mainItem.hitPower);
             this.setItemNextUse(this.mainItem);
         }
     }

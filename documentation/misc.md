@@ -4,6 +4,7 @@
 
 ## Contents of this file
 - [Basic game info](#basic-game-info)
+- [Commonly used terms](#commonly-used-terms)
 - [Times](#times)
 - [Images](#images)
 - [Positions/velocities and scaleMult](#positionsvelocities-and-scalemult)
@@ -11,7 +12,13 @@
 
 #### Basic game info
 [Back to top](#contents-of-this-file)  
-The player is a person shipwrecked on an island. They can't jump but can mine and use that to go up hills. The game is currently called Adventure Game. That is a working title and will be revised.
+The player is a person shipwrecked on an island. They can't jump very high but can mine their way up the side of hills. The game is currently called Adventure Game. That is a working title and will be revised.
+
+#### Commonly used terms
+[Back to top](#contents-of-this-file)  
+Common terms used in this code:
+**button checks** a function run on mouse release that checks if any of the buttons it handles are being pressed, and if they are, running the functions that those buttons command  
+**item action** an action that can be done to an item. Eg: discard, eat, equip. Each items says what actions can be done to it  
 
 #### Times
 [Back to top](#contents-of-this-file)  
@@ -35,4 +42,4 @@ Positions/velocities are measured in cm (and are suffixed with cm) unless they r
 
 #### Buttons
 [Back to top](#contents-of-this-file)  
-Buttons are from my guiElements 'package'. All button pressed are bound to mouseReleased(), so that a button gets clicked when the mouse is released, as is with html buttons. All widgets have mouseHovering() and isBeingClicked() methods. The difference is that isBeingClicked() checks the p5 variable mouseIsDown. When a button is bound to mouseReleased, it will be triggered at a point when mouseIsDown is NOT true. Therefore isBeingClicked() will return false when called from mouseReleased(), which is not what you want.
+Buttons are from my guiElements 'package' of widgets. All button pressed are bound to mouseReleased(), so that a button gets clicked when the mouse is released, as is with html buttons. All widgets have mouseHovering() and isBeingClicked() methods. The difference is that isBeingClicked() checks the p5 variable mouseIsDown. When a button is bound to mouseReleased, it will be triggered at a point when mouseIsDown is NOT true. Therefore isBeingClicked() will return false when called from mouseReleased(), which is not what you want. Most functions that check buttons do not check if the mouse is pressed themselves; they are called from the global crntButtonChecks, which is run in the p5 function mouseReleased();

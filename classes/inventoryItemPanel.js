@@ -55,12 +55,35 @@ class InventoryItemPanel extends Panel {
 
     _makeItemImage(row, col) {
         // Create an image in the right position to display an item
+        var idx = row * this.itemsPerRow + col;
+        var item = this.inventory.items[idx];
 
         var pos = new p5.Vector(col * this.totalItemSize + this.itemPadding, row * this.totalItemSize + this.itemPadding);
-        var size = new p5.Vector(this.itemSize, this.itemSize);
-        var idx = row * this.itemsPerRow + col;
+        var size = this._scaleItemImage(item, new p5.Vector(this.itemSize, this.itemSize));
         var image = new SimpleImage(pos, size, this.inventory.items[idx].imageName, this.scaleMult);
         
         this.addChild(image);
+    }
+
+    _scaleItemImage(item, endSize) {
+        // If the item has a definite size, scale it so it fits in the box
+        if (item.imageSizeCm !== undefined) {
+            var itemSizeRatio = item.imageSizeCm.x / item.imageSizeCm.y;
+
+            // If the wanted size is wider than the usable one use the whole width
+            if (itemSizeRatio >= 1) {
+                var sizeMult = endSize.x / item.imageSizeCm.x;
+            }
+            // If the wanted size is taller than the usable one use the whole height
+            else {
+                var sizeMult = endSize.y / item.imageSizeCm.y;
+            }
+            var size = new p5.Vector(item.imageSizeCm.x * sizeMult, item.imageSizeCm.y * sizeMult);
+        }
+        // If the item has no definite size
+        else {
+            var size = new p5.Vector(endSize.x, endSize.y);
+        }
+        return size;
     }
 }

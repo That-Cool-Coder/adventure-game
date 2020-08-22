@@ -102,7 +102,10 @@ function startNewGame() {
     var animals = makeWildAnimals();
     var tool = new Tool('Pickaxe', 10, new p5.Vector(30, 30),
         'pickaxe', 10, new p5.Vector(30, 10), 30);
+    var tool2 = new Tool('Sword', 12, new p5.Vector(30, 12),
+        'sword', 15, new p5.Vector(30, 10), 48)
     var inventory = new Inventory(100, 50);
+    inventory.addItem(tool2);
 
     var character = new Character(characterName, characterStartPos, 
         characterSizeCm, characterSpeed, characterJumpStrength, gravityStrength, characterImageNames,

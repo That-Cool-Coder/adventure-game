@@ -25,6 +25,7 @@ const imageUrls = {
     boarRight : 'images/animals/boarRight.png',
 
     pickaxe : 'images/tools/pickaxe.png',
+    sword : 'images/tools/sword.png',
 
     bgImage : 'images/bgImage.png',
 
@@ -39,6 +40,7 @@ const soundUrls = {
     mainLoop : 'sounds/mainLoop.mp3',
     titleScreen : 'sounds/titleScreen.mp3',
     boarDie : 'sounds/animals/boarDie.mp3',
+    grunt : 'sounds/grunt.wav',
     sadTrombone : 'sounds/sadTrombone.wav',
     characterDamageTaken : 'sounds/knifeStab.mp3',
     gravel : 'sounds/gravel.wav',

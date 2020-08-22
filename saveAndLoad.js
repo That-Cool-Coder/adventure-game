@@ -109,6 +109,8 @@ function loadWildAnimals(gameData) {
     gameData.wildAnimals.forEach(animal => {
         Object.setPrototypeOf(animal, WildAnimal.prototype);
         animal.onDieFunc = wildAnimalOnDieFuncs[animal.species];
+        animal.equipMain(animal.mainItem);
+        animal.equipSecondary(animal.secondaryItem);
     });
 }
 

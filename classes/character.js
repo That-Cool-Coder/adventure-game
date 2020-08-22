@@ -48,24 +48,22 @@ class Character {
     // ---------
 
     equipMain(item) {
-        if (item !== null) {
-            this.mainItem = item;
-            this.setItemNextUse(this.mainItem);
-        }
+        this.mainItem = item;
+        this.setItemNextUse(this.mainItem);
     }
 
     equipSecondary(item) {
-        if (item !== null) {
-            this.secondaryItem = item;
-            this.setItemNextUse(this.secondaryItem);
-        }
+        this.secondaryItem = item;
+        this.setItemNextUse(this.secondaryItem);
     }
 
     useMain(blocks, wildAnimals) {
-        if (this.canUseItemYet(this.mainItem)) {
-            this.mine(blocks);
-            this.attackWildAnimals(wildAnimals);
-            this.setItemNextUse(this.mainItem);
+        if (this.mainItem !== null) {
+            if (this.canUseItemYet(this.mainItem)) {
+                this.mine(blocks);
+                this.attackWildAnimals(wildAnimals);
+                this.setItemNextUse(this.mainItem);
+            }
         }
     }
 
@@ -74,7 +72,7 @@ class Character {
     }
 
     mine(blocks) {
-        if (this.mainItem !== null && this.canUseItemYet(this.mainItem)) {
+        if (this.mainItem !== null) {
             var touchingBlocks = this.getBlocksBeingMined(blocks);
             var blockHitAmount = touchingBlocks.length
             for (var blockIdx = 0; blockIdx < touchingBlocks.length; blockIdx ++) {

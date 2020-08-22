@@ -3,7 +3,7 @@ class SimpleButton extends Widget {
         super(topLeftPos, size, text, textSize, scaleMult);
     }
 
-    draw(translation=new p5.Vector(0, 0)) {
+    draw(translation=new p5.Vector(0, 0)) {  
         push();
 
         scale(this.scaleMult);

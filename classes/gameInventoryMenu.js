@@ -1,33 +1,52 @@
 class GameInventoryMenu extends Panel {
-    constructor(characterInventory, mainThemeColor, secondaryColor) {
+    constructor(character, mainThemeColor, secondaryColor) {
         // Setup panel for inventory-showing menu
         var size = new p5.Vector(widthCm * 0.9, heightCm * 0.9);
         var margin = new p5.Vector(widthCm, heightCm).sub(size).div(2);
 
         super(margin, size, layoutStyles.relativePosition, scaleMult);
-        this.characterInventory = characterInventory;
+        this.character = character;
         this.mainThemeColor = mainThemeColor;
         this.secondaryColor = secondaryColor;
         this.setBgColor(this.secondaryColor);
 
         this.centerPos = p5.Vector.div(size, 2);
 
+        this.itemActionButtons = {};
+        this.itemActionButtonPosY = 27;
+
+        this.setupItemActionButtonCallbacks();
+
         this.setupMainItemsRENAME();
         this.setupCenterPanel();
         this.setupCraftingPanel();
 
         // Save the draw function inherited from Panel so that a new draw that does everything can be made
+        // without overwriting the inherited draw
         this.crntlySelectedItem = null;
         this.crntlySelectedItemIdx = null;
         this.inheritedDraw = this.draw;
         this.draw = () => {
-            this.inheritedDraw();
+            this.centerPanel.itemInfoPanel.displayImage.draw(); // draw it last so it's on top
+            if (this.crntlySelectedItem !== null) this.updateItemInfoPanelActionButtons();
 
-            if (this.crntlySelectedItem !== null) this.drawItemInfoPanel();
+            this.inheritedDraw();
         }
     }
 
-    drawItemInfoPanel() {
+    updateItemInfoPanelActionButtons() {
+        var xPosSubtotal = 0;
+        this.crntlySelectedItem.actions.forEach((action, idx) => {
+            var btn = this.itemActionButtons[action];
+            this.centerPanel.itemInfoPanel.removeChild(btn);
+
+            var pos = (idx + 1) * 5 + xPosSubtotal;
+            btn.topLeftPos.x = pos;
+            btn.topLeftPos.y = this.itemActionButtonPosY;
+
+            this.centerPanel.itemInfoPanel.addChild(btn);
+            xPosSubtotal += btn.size.x;
+        });
     }
 
     buttonChecks() {
@@ -37,23 +56,33 @@ class GameInventoryMenu extends Panel {
         }
 
         if (this.crntlySelectedItem !== null) {
-            if (this.centerPanel.itemInfoPanel.discardButton.mouseHovering()) {
-                if (confirm(`Are you sure you want to discard ${this.crntlySelectedItem.name}?`)) {
-                    this.characterInventory.removeItem(this.crntlySelectedItemIdx);
-                    this.deselectSelectedItem();
-                }
-            }
+            this.checkItemActionButtons();
         }
     }
 
     selectItem(idx) {
         this.crntlySelectedItemIdx = idx;
-        this.crntlySelectedItem = this.characterInventory.items[this.crntlySelectedItemIdx];
+        this.crntlySelectedItem = this.character.inventory.items[this.crntlySelectedItemIdx];
 
         if (this.crntlySelectedItem !== null) {
             this.centerPanel.itemInfoPanel.displayImage.name = this.crntlySelectedItem.imageName;
         }
         else this.centerPanel.itemInfoPanel.displayImage.name = 'transparentPixel';
+    }
+
+    checkItemActionButtons() {
+        // Loop through all of the item action buttons and see if any are triggering
+        // (assumes mouse being clicked has been checked somewhere else)
+
+        var enabledButtonNames = this.crntlySelectedItem.actions;
+        enabledButtonNames.forEach(name => {
+            var btn = this.itemActionButtons[name];
+            // If the button's being clicked, find the function that
+            // goes with it and run that function
+            if (btn.mouseHovering()) {
+                this.itemActionButonCallbacks[name]();
+            }
+        })
     }
 
     deselectSelectedItem() {
@@ -77,6 +106,9 @@ class GameInventoryMenu extends Panel {
     }
 
     setupCenterPanel() {
+        // Setup the central panel of the inventory menu. This panel shows what's...
+        // ...in the character's inventory and lets you select items and use them
+
         var centerPanelSize = new p5.Vector(this.size.x / 3, this.size.y - 80);
         var centerPanelPos = new p5.Vector(this.size.x / 3, 50);
         var centerPanel = new Panel(centerPanelPos,
@@ -101,14 +133,16 @@ class GameInventoryMenu extends Panel {
         this.setupItemInfoPanel();
 
         // Panel that shows all of the items in a list
-        var itemPanel = new InventoryItemPanel(this.characterInventory, new p5.Vector(0, 0),
+        var itemPanel = new InventoryItemPanel(this.character.inventory, new p5.Vector(0, 0),
             p5.Vector.sub(centerPanelSize, new p5.Vector(10, 150)), 12, 2, scaleMult);
         this.centerPanel.addChild(itemPanel, 15);
         this.centerPanel.linkChild(itemPanel, 'itemPanel');
     }
 
     setupItemInfoPanel() {
-        // Panel that shows info about an item and has buttons like move to x
+        // Setup the panel that shows specific information about the selected item
+
+        // Panel that shows info about an item and has buttons like move to, equip
         var itemInfoPanel = new Panel(new p5.Vector(0, 0),
             new p5.Vector(this.centerPanel.size.x - 20, 50),
             layoutStyles.relativePosition, scaleMult);
@@ -122,20 +156,45 @@ class GameInventoryMenu extends Panel {
         itemInfoPanel.addChild(displayImage);
         itemInfoPanel.linkChild(displayImage, 'displayImage');
 
-        var equipButton = new SimpleButton(new p5.Vector(5, 27), new p5.Vector(45, 18),
-            'Equip', 12, scaleMult);
-        equipButton.setBgColor(this.mainThemeColor);
-        itemInfoPanel.addChild(equipButton);
-        itemInfoPanel.linkChild(equipButton, 'equipButton');
+        // Create the item action buttons
 
-        var discardButton = new SimpleButton(new p5.Vector(55, 27), new p5.Vector(50, 18),
-            'Discard', 12, scaleMult);
-        discardButton.setBgColor(this.mainThemeColor);
-        itemInfoPanel.addChild(discardButton);
-        itemInfoPanel.linkChild(discardButton, 'discardButton');
+        var buttonNames = Object.keys(itemActions);
+
+        buttonNames.forEach(name => {
+            var btn = new SimpleButton(new p5.Vector(0, this.itemActionButtonPosY), new p5.Vector(7 * name.length, 18),
+                name, 12, scaleMult);
+            btn.setBgColor(this.mainThemeColor);
+            this.itemActionButtons[name] = btn;
+        });
     }
 
     setupCraftingPanel() {
 
     }
+
+    setupItemActionButtonCallbacks() {
+        // Setup a dictionary of callbacks to be run when an item-action-triggering button is pressed
+
+        this.itemActionButonCallbacks = {};
+
+        // Setup discard button
+        this.itemActionButonCallbacks[itemActions.discard] = () => {
+            this.character.inventory.removeItem(this.crntlySelectedItem);
+            this.deselectSelectedItem();
+        }
+
+        // Setup equip button
+        this.itemActionButonCallbacks[itemActions.equip] = () => {
+            var oldEquippedItem = this.character.mainItem;
+            var newItem = this.crntlySelectedItem;
+            this.character.inventory.removeItem(newItem);
+            this.character.equipMain(newItem);
+            console.log(newItem, this.character.mainItem)
+            if (oldEquippedItem !== null) {
+                this.character.inventory.addItem(oldEquippedItem);
+            }
+            this.deselectSelectedItem();
+        }
+    }
+
 }

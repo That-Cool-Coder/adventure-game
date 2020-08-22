@@ -22,10 +22,10 @@ class Boar extends WildAnimal {
         var attackDamage = 8;
         var attackTool = new Tool('dat boar', 1, new p5.Vector(0, 0), 'grey20Pixel',
             attackDamage,
-            new p5.Vector(sizeCm.x / 1.9, sizeCm.y / 2),
-            60);
+            new p5.Vector(sizeCm.x / 1.9, sizeCm.y / 2), 60);
         var soundNames = {
-            onDie : 'boarDie'
+            onDie : 'boarDie',
+            onDamageTaken : 'grunt'
         };
 
         super(name, positionCm, sizeCm, moveSpeedCm, 0, gravityStrength, imageNames,

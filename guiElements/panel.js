@@ -53,6 +53,11 @@ class Panel extends Widget {
         this.children = [];
     }
 
+    removeChild(child) {
+        var idx = this.children.indexOf(child);
+        if (idx !== -1) this.children.splice(idx, 1);
+    }
+
     linkChild(child, name) {
         this[name] = child;
     }
@@ -63,7 +68,7 @@ class Panel extends Widget {
         scale(this.scaleMult);
 
         translate(translation);
-
+        
         if (this.borderColor !== null && this.borderWidth !== 0) {
             stroke(this.borderColor);
             strokeWeight(this.borderWidth);

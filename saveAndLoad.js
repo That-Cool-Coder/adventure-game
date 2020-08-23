@@ -49,6 +49,7 @@ function efficientlyStringifyGame(gameToStringify) {
         bgImageName : gameData.bgImageName,
         character : gameData.character,
         exitFunc : gameData.exitFunc,
+        showControlFunc : gameData.showControlFunc,
         mainThemeColor : gameData.mainThemeColor,
         secondaryColor : gameData.secondaryColor,
         version : gameData.version,
@@ -89,7 +90,7 @@ function parseJsonGame(stringifiedGame) {
     // Don't use Object.setPrototypeOf() on game as it has a bunch of highly nested menus
     // that aren't saved in the JSON and would be a pain to reprototype
     var newGame = new Game(gameData.name, gameData.bgImageName, gameData.character,
-        gameData.exitFunc, gameData.mainThemeColor, gameData.secondaryColor,
+        gameData.exitFunc, gameData.showControlFunc, gameData.mainThemeColor, gameData.secondaryColor,
         gameData.version, gameData.blocks, gameData.mapSectionXRanges,
         gameData.wildAnimals, gameData.timeIncrement, 
         gameData.timeOfDay, gameData.autoSaveInterval);

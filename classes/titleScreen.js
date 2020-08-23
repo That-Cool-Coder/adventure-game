@@ -1,12 +1,13 @@
 var fillInVector = new p5.Vector(0, 0); // vector for temporary use
 
 class TitleScreen {
-    constructor(fps, bgImageName, bgImageSize, startGameFunc, newGameFunc) {
+    constructor(fps, bgImageName, bgImageSize, startGameFunc, newGameFunc, openAboutPageFunc) {
         this.bgImageName = bgImageName;
         this.bgImageSize = bgImageSize;
 
         this.startGameFunc = startGameFunc; // to start any game
         this.newGameFunc = newGameFunc; // to start new
+        this.openAboutPageFunc = openAboutPageFunc; // To open the page that says stuff about the game
 
         // 'consts'
 
@@ -59,7 +60,7 @@ class TitleScreen {
 
         // Set up play button
         var playButton = new SimpleButton(fillInVector, new p5.Vector(270, 70),
-            'Play Game', 50, scaleMult);
+            'Play', 50, scaleMult);
         playButton.setBorderWidth(3);
         playButton.setBorderColor(themeColors.secondBrown);
         playButton.setTextOutlineWidth(0);
@@ -68,6 +69,18 @@ class TitleScreen {
 
         this.startMenu.addChild(playButton, 5);
         this.startMenu.linkChild(playButton, 'playButton');
+
+        // Set up about button
+        var aboutButton = new SimpleButton(fillInVector, new p5.Vector(270, 70),
+            'About', 50, scaleMult);
+        aboutButton.setBorderWidth(3);
+        aboutButton.setBorderColor(themeColors.secondBrown);
+        aboutButton.setTextOutlineWidth(0);
+        aboutButton.setTextColor([100, 100, 100]);
+        aboutButton.setBgColor(themeColors.mainBrown);
+
+        this.startMenu.addChild(aboutButton, 50);
+        this.startMenu.linkChild(aboutButton, 'aboutButton');
     }
 
     setupPlayMenu() {
@@ -224,8 +237,11 @@ class TitleScreen {
 
     checkStartScreenButtons() {
         if (this.startMenu.playButton.mouseHovering(this.viewPanCm)) {
-            //this.goToPlayMenu();
             this.beginSlideToPlayMenu();
+        }
+
+        if (this.startMenu.aboutButton.mouseHovering(this.viewPanCm)) {
+            eval(this.openAboutPageFunc);
         }
     }
 
@@ -241,7 +257,6 @@ class TitleScreen {
             });
         }
         if (this.playMenu.backButton.mouseHovering(this.viewPanCm)) {
-            //this.goToStartScreen();
             this.beginSlideToStartScreen();
         }
     }

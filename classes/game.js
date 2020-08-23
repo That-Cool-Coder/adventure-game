@@ -1,5 +1,5 @@
 class Game {
-    constructor(name, bgImageName, character, exitFunc, mainThemeColor, 
+    constructor(name, bgImageName, character, exitFunc, showControlFunc, mainThemeColor, 
         secondaryColor, version=oldestCompatibleVersion, blocks=[], mapSectionXRanges=[],
         wildAnimals=[], wildAnimalSpawnArea=null, wildAnimalSpawnChances={}, createWildAnimalFunctions={},
         maxWildAnimalAmounts={},
@@ -9,7 +9,9 @@ class Game {
         this.bgImageName = bgImageName;
         this.character = character;
 
+        // These are as strings so that they can be saved in JSON and then eval'ed
         this.exitFunc = exitFunc;
+        this.showControlFunc = showControlFunc;
 
         this.mainThemeColor = mainThemeColor;
         this.secondaryColor = secondaryColor;
@@ -37,9 +39,9 @@ class Game {
         this.paused = false;
         this.inventoryMenuShowing = false;
 
-        this.crntDraw = this.updateExploring.bind(this);
-        this.crntButtonChecks = this.exploringButtonChecks.bind(this);
-        this.crntOnPressKeybinds = this.exploringKeybinds.bind(this);
+        this.crntDraw = () => this.updateExploring();
+        this.crntButtonChecks = () => this.exploringButtonChecks();
+        this.crntOnPressKeybinds = () => this.exploringKeybinds();
 
         this.messages = [];
 
@@ -65,15 +67,15 @@ class Game {
         if (this.paused) {
             this.paused = false;
             this.hud.pauseButton.setText('Pause');
-            this.crntButtonChecks = this.exploringButtonChecks.bind(this);
-            this.crntDraw = this.updateExploring.bind(this);
+            this.crntButtonChecks = () => this.exploringButtonChecks();
+            this.crntDraw = () => this.updateExploring();
         }
         // pause
         else {
             this.paused = true;
             this.hud.pauseButton.setText('Unpause');
-            this.crntButtonChecks = this.pausedButtonChecks.bind(this);
-            this.crntDraw = this.updateGamePaused.bind(this);
+            this.crntButtonChecks = () => this.pausedButtonChecks();
+            this.crntDraw = () => this.updateGamePaused();
         }
     }
 
@@ -82,17 +84,18 @@ class Game {
         else this.openInventoryMenu();
     }
 
-    closeInventoryMenu() {
-        this.inventoryMenuShowing = false;
-        this.crntDraw = this.updateExploring.bind(this);
-        this.crntButtonChecks = this.exploringButtonChecks.bind(this);
-    }
-
     openInventoryMenu() {
         this.paused = true;
         this.inventoryMenuShowing = true;
-        this.crntDraw = this.updateShowingInventory.bind(this);
-        this.crntButtonChecks = this.showingInventoryButtonChecks.bind(this);
+        this.crntDraw = () => this.updateShowingInventory();
+        this.crntButtonChecks = () => this.showingInventoryButtonChecks();
+    }
+
+    closeInventoryMenu() {
+        this.paused = false;
+        this.inventoryMenuShowing = false;
+        this.crntDraw = () => this.updateExploring();
+        this.crntButtonChecks = () => this.exploringButtonChecks();
     }
 
     exit() {
@@ -326,6 +329,13 @@ class Game {
         if (this.hud.inventoryButton.mouseHovering()) {
             this.toggleInventoryMenu();
         }
+        if (this.hud.controlShowButton.mouseHovering()) {
+            eval(this.showControlFunc);
+        }
+
+
+        // Cheat button is not in production code!
+        /*
         if (this.hud.cheatButton.mouseHovering()) {
             if (! this.cheatsOn) {
                 this.character.mainItem.hitPower2 = this.character.mainItem.hitPower;
@@ -346,7 +356,7 @@ class Game {
                 this.hud.cheatButton.setText('Turn Cheats On');
                 this.cheatsOn = false;
             }
-        }
+        }*/
     }
 
     // Keybinds
@@ -484,13 +494,18 @@ class Game {
             new p5.Vector(85, 30), 'Pause', 20, scaleMult);
         this.hud.pauseButton.setBgColor(this.mainThemeColor);
 
-        this.hud.inventoryButton = new SimpleButton(new p5.Vector(widthCm - 260, 10),
+        this.hud.inventoryButton = new SimpleButton(new p5.Vector(widthCm - 250, 10),
             new p5.Vector(100, 30), 'Inventory', 20, scaleMult);
         this.hud.inventoryButton.setBgColor(this.mainThemeColor);
 
-        this.hud.cheatButton  = new SimpleButton(new p5.Vector(20, 10),
-            new p5.Vector(155, 30), 'Turn Cheats On', 20, scaleMult);
-        this.hud.cheatButton.setBgColor(this.mainThemeColor);
+        this.hud.controlShowButton = new SimpleButton(new p5.Vector(widthCm - 340, 10),
+            new p5.Vector(80, 30), 'Controls', 20, scaleMult);
+        this.hud.controlShowButton.setBgColor(this.mainThemeColor);
+
+        // Cheat button is not in production code!
+        //this.hud.cheatButton  = new SimpleButton(new p5.Vector(20, 10),
+            //new p5.Vector(155, 30), 'Turn Cheats On', 20, scaleMult);
+        //this.hud.cheatButton.setBgColor(this.mainThemeColor);
 
         this.hud.healthMeter = new Label(new p5.Vector(widthCm - 140, heightCm - 40),
             'Health: ' + this.character.health, 30, scaleMult);

@@ -28,6 +28,33 @@ function calcAccelerationDist(speedChange, acceleration) {
     return dist;
 }
 
+function findSizeMultilplierToFitRectangle(origSize, availableSize) {
+    // Find how much you have to multiply origSize to fit it into availableSize...
+    // ...without changing the aspect ratio
+
+    var origRatio = origSize.x / origSize.y;
+    var availableRatio = availableSize.x / availableSize.y;
+
+    // If the wanted size is wider than the usable one use the whole width
+    if (origRatio >= availableRatio) {
+        var sizeMult = availableSize.x / origSize.x;
+    }
+    // If the wanted size is taller than the usable one use the whole height
+    else {
+        var sizeMult = availableSize.y / origSize.y;
+    }
+    return sizeMult;
+}
+
+function scaleToFitRectangle(origSize, availableSize) {
+    // Multiply origSize so that it fits into availableSize
+    // ...without changing the aspect ratio
+
+    var sizeMult = findSizeMultilplierToFitRectangle(origSize, availableSize);
+    var size = new p5.Vector(origSize.x * sizeMult, origSize.y * sizeMult);
+    return size;
+}
+
 function doNothing() {
     // Do nothing!
 }

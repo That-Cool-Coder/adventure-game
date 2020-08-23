@@ -78,8 +78,8 @@ const wildAnimalOnDieFuncs = {
     'boar' : () => {}
 }
 
-const oldestCompatibleVersion = 25;
-const crntVersion = 25;
+const oldestCompatibleVersion = 27;
+const crntVersion = 27;
 
 const mapSectionWidthCm = 100;
 const mapSectionOverlapCm = 100;
@@ -113,7 +113,7 @@ function startNewGame() {
         true, characterOnDie, tool, tool, inventory, characterSoundNames);
 
     game = new Game(gameSaveName, gameBgImageNames, character,
-        'exitGame()', themeColors.mainBrown, themeColors.secondBrown,
+        'exitGame()', 'openControlPage()', themeColors.mainBrown, themeColors.secondBrown,
         crntVersion, blocks, mapSectionXRanges,
         animals, new Range(0, mapCols * blockSizeCm), wildAnimalSpawnChances, createWildAnimalFunctions,
         maxWildAnimalAmounts, 

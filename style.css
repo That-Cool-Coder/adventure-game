@@ -4,6 +4,11 @@ html, body {
     height: 90%;
 }
 
+h1, p {
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    color: white;
+}
+
 #p5_loading {
     background-color: black;
     height: 100%;

@@ -1,6 +1,8 @@
-// (width cm and height cm are in canvasInfo.js)
+// for widthCm and heightCm, view canvasInfo.js as that data needs to be loaded
+// for some other files before this one
 
-const scaleMult = findScaleMult();
+const scaleMult = findSizeMultilplierToFitRectangle(new p5.Vector(widthCm, heightCm),
+    new p5.Vector(getViewportWidth(), getViewportHeight())) * viewportSizeTaken;
 
 const cWidth = scaleMult * widthCm;
 const cHeight = scaleMult * heightCm;
@@ -81,6 +83,14 @@ function setup() {
     textAlign(CENTER, CENTER);
     angleMode(DEGREES);
     frameRate(fps);
+}
+
+function openControlPage() {
+    window.open('instructionPage.html', '_blank');
+}
+
+function openAboutGamePage() {
+    window.open('about.html', '_blank');
 }
 
 function createInitialScreen() {
@@ -179,7 +189,7 @@ function keyPressed() {
 
 // Make title screen
 var titleScreen = new TitleScreen(fps, 'titleScreenBg', 
-    imageSizesCm.titleScreenBg, 'startUnnamedGame()', 'startNewGame()');
+    imageSizesCm.titleScreenBg, 'startUnnamedGame()', 'startNewGame()', 'openAboutGamePage()');
 
 // Make the screen that says start (needed for playing sound) and go to it
 createInitialScreen();

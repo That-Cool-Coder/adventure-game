@@ -14,6 +14,7 @@ class GameInventoryMenu extends Panel {
 
         this.itemActionButtons = {};
         this.itemActionButtonPosY = 27;
+        this.selectedItemImageSize = new p5.Vector(20, 20);
 
         this.setupItemActionButtonCallbacks();
 
@@ -65,9 +66,22 @@ class GameInventoryMenu extends Panel {
         this.crntlySelectedItem = this.character.inventory.items[this.crntlySelectedItemIdx];
 
         if (this.crntlySelectedItem !== null) {
+            // Change the image content
             this.centerPanel.itemInfoPanel.displayImage.name = this.crntlySelectedItem.imageName;
+            // Resize the image to avoid messing up aspect ratio of item
+            this.centerPanel.itemInfoPanel.displayImage.size =
+                this._scaleItemImage(this.crntlySelectedItem, this.selectedItemImageSize);
+            // Set the label to say the item's name
+            this.centerPanel.itemInfoPanel.nameText.text = this.crntlySelectedItem.name;
         }
-        else this.centerPanel.itemInfoPanel.displayImage.name = 'transparentPixel';
+        else deselectSelectedItem();
+    }
+
+    deselectSelectedItem() {
+        this.crntlySelectedItemIdx = null;
+        this.crntlySelectedItem = null;
+        this.centerPanel.itemInfoPanel.displayImage.name = 'transparentPixel';
+        this.centerPanel.itemInfoPanel.nameText.text = 'No item selected';
     }
 
     checkItemActionButtons() {
@@ -83,12 +97,6 @@ class GameInventoryMenu extends Panel {
                 this.itemActionButonCallbacks[name]();
             }
         })
-    }
-
-    deselectSelectedItem() {
-        this.crntlySelectedItemIdx = null;
-        this.crntlySelectedItem = null;
-        this.centerPanel.itemInfoPanel.displayImage.name = 'transparentPixel';
     }
 
     setupMainItemsRENAME() {
@@ -151,10 +159,17 @@ class GameInventoryMenu extends Panel {
         this.centerPanel.addChild(itemInfoPanel, 15);
         this.centerPanel.linkChild(itemInfoPanel, 'itemInfoPanel');
 
-        var displayImage = new SimpleImage(new p5.Vector(5, 5), new p5.Vector(20, 20),
+        var displayImage = new SimpleImage(new p5.Vector(5, 5),
+            new p5.Vector(this.selectedItemImageSize.x, this.selectedItemImageSize.y),
             'transparentPixel', scaleMult);
         itemInfoPanel.addChild(displayImage);
         itemInfoPanel.linkChild(displayImage, 'displayImage');
+
+        var nameText = new Label(new p5.Vector(itemInfoPanel.size.x / 2, 12),
+            'No item selected', 14, scaleMult);
+        nameText.setTextColor([100, 100, 100]);
+        itemInfoPanel.addChild(nameText);
+        itemInfoPanel.linkChild(nameText, 'nameText');
 
         // Create the item action buttons
 
@@ -189,7 +204,7 @@ class GameInventoryMenu extends Panel {
             var newItem = this.crntlySelectedItem;
             this.character.inventory.removeItem(newItem);
             this.character.equipMain(newItem);
-            console.log(newItem, this.character.mainItem)
+            
             if (oldEquippedItem !== null) {
                 this.character.inventory.addItem(oldEquippedItem);
             }
@@ -197,4 +212,15 @@ class GameInventoryMenu extends Panel {
         }
     }
 
+    _scaleItemImage(item, endSize) {
+        // If the item has a definite size, scale it so it fits in the box
+        if (item.imageSizeCm !== undefined) {
+            var size = scaleToFitRectangle(item.imageSizeCm, endSize);
+        }
+        // If the item has no definite size
+        else {
+            var size = new p5.Vector(endSize.x, endSize.y);
+        }
+        return size;
+    }
 }

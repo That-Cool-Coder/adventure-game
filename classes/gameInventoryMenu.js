@@ -36,10 +36,19 @@ class GameInventoryMenu extends Panel {
     }
 
     updateItemInfoPanelActionButtons() {
+        // Make the buttons show all of the actions available for the currently selected item
+
+        // Remove all of the old actions
+        var actionNames = Object.keys(itemActions);
+        actionNames.forEach(name => {
+            var btn = this.itemActionButtons[name];
+            this.centerPanel.itemInfoPanel.removeChild(btn);
+        });
+
+        // And add the new ones
         var xPosSubtotal = 0;
         this.crntlySelectedItem.actions.forEach((action, idx) => {
             var btn = this.itemActionButtons[action];
-            this.centerPanel.itemInfoPanel.removeChild(btn);
 
             var pos = (idx + 1) * 5 + xPosSubtotal;
             btn.topLeftPos.x = pos;

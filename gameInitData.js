@@ -32,6 +32,7 @@ const stoneBlockStrengthRechargeRate = 0.1;
 
 const coalChance = 1/10;
 const boarChance = 1/15;
+const ratChance = 1 / 12;
 
 const gameTimeIncrement = 1/18000;
 const gameBgImageNames = 'bgImage';
@@ -63,19 +64,23 @@ const characterSoundNames = {
 
 // Wild animals
 const wildAnimalSpawnChances = {
-    'boar' : 1 / (60 * 30)
+    'boar' : 1 / (60 * 30),
+    'rat' : 1 / (60 * 15)
 };
 
 const createWildAnimalFunctions = {
-    'boar' : pos => new Boar(pos, gravityStrength)
+    'boar' : pos => new Boar(pos, gravityStrength),
+    'rat' : pos => new Rat(pos, gravityStrength)
 };
 
 const maxWildAnimalAmounts = {
-    'boar' : 25
+    'boar' : 25,
+    'rat' : 50
 }
 
 const wildAnimalOnDieFuncs = {
-    'boar' : () => {}
+    'boar' : () => {},
+    'rat' : () => {}
 }
 
 const oldestCompatibleVersion = 27;

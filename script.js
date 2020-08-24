@@ -26,6 +26,9 @@ const imageUrls = {
     boarLeft : 'images/animals/boarLeft.png',
     boarRight : 'images/animals/boarRight.png',
 
+    ratLeft : 'images/animals/ratLeft.png',
+    ratRight : 'images/animals/ratRight.png',
+
     pickaxe : 'images/tools/pickaxe.png',
     sword : 'images/tools/sword.png',
 

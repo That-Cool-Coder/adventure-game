@@ -1,5 +1,6 @@
 const wildAnimalSpecies = [
-    'boar'
+    'boar',
+    'rat'
 ];
 
 class WildAnimal extends Character {

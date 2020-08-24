@@ -111,14 +111,10 @@ function makeWildAnimals() {
             var boar = new Boar(new p5.Vector(blockSizeCm * col, -1500), gravityStrength);
             wildAnimals.push(boar);
         }
+        if (Math.random() < ratChance) {
+            var rat = new Rat(new p5.Vector(blockSizeCm * col, -1500), gravityStrength);
+            wildAnimals.push(rat);
+        }
     }
     return wildAnimals;
-}
-
-function makeWildAnimalTool() {
-    var tool = new Tool('dat boar', 1, new p5.Vector(0, 0), 'grey20Pixel',
-        boarAttackDamage,
-        new p5.Vector(boarSizeCm.x / 1.9, boarSizeCm.y / 2),
-        boarStaminaToAttack);
-    return tool;
 }

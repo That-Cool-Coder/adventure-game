@@ -35,3 +35,4 @@ The WildAnimal class is a class for a generic above-ground wild animal that exte
 #### Species of WildAnimal
 [Back to top](#contents-of-this-file)  
 - Boar. Large animal (1.2 blocks * 1.2 blocks big) that attacks by hitting you with its head. Does a reasonable amount of damage and has a good amount of health. When multiple boars 'gang up' it can be deadly. No special features.
+- Rat. Small fast animal (0.5 * 0.2 blocks big) that attacks with its whole body. Not very damaging and easy to kill but rather annoying and if you don't look out for them they can kill you. Nothing else

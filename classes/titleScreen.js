@@ -93,18 +93,6 @@ class TitleScreen {
             layoutStyles.verticalRow, scaleMult);
         this.playMenu.setBorderWidth(0);
 
-        // Set up load game button
-        var loadGameButton = new SimpleButton(fillInVector, new p5.Vector(300, 70),
-            'Load Game', 50, scaleMult);
-        loadGameButton.setBorderWidth(3);
-        loadGameButton.setBorderColor(themeColors.secondBrown);
-        loadGameButton.setTextOutlineWidth(0);
-        loadGameButton.setTextColor([100, 100, 100]);
-        loadGameButton.setBgColor(themeColors.mainBrown);
-
-        this.playMenu.addChild(loadGameButton, 5);
-        this.playMenu.linkChild(loadGameButton, 'loadGameButton');
-
 
         // Set up new game button
         var newGameButton = new SimpleButton(fillInVector, new p5.Vector(390, 70),
@@ -115,8 +103,20 @@ class TitleScreen {
         newGameButton.setTextColor([100, 100, 100]);
         newGameButton.setBgColor(themeColors.mainBrown);
 
-        this.playMenu.addChild(newGameButton, 50);
+        this.playMenu.addChild(newGameButton, 5);
         this.playMenu.linkChild(newGameButton, 'newGameButton');
+
+        // Set up load game button
+        var loadGameButton = new SimpleButton(fillInVector, new p5.Vector(300, 70),
+            'Load Game', 50, scaleMult);
+        loadGameButton.setBorderWidth(3);
+        loadGameButton.setBorderColor(themeColors.secondBrown);
+        loadGameButton.setTextOutlineWidth(0);
+        loadGameButton.setTextColor([100, 100, 100]);
+        loadGameButton.setBgColor(themeColors.mainBrown);
+
+        this.playMenu.addChild(loadGameButton, 50);
+        this.playMenu.linkChild(loadGameButton, 'loadGameButton');
         
         // Set up back button
         var backButton = new SimpleButton(fillInVector, new p5.Vector(120, 50),

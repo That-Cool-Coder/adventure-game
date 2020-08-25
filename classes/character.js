@@ -222,10 +222,14 @@ class Character {
 
     collideWildAnimals(wildAnimals) {
         wildAnimals.forEach(animal => {
-            if (this.touchingCharacter(animal)) {
-                this.moveAwayFromBlock(animal);
+            if (animal.collidesWithCharacter) {
+                if (this.touchingCharacter(animal)) {
+                    // Use block collision code to see if touching the animal...
+                    // ...because animals have the same attributes as a block
+                    this.moveAwayFromBlock(animal);
+                }
             }
-        })
+        });
     }
 
     // 2nd level movement

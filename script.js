@@ -141,16 +141,12 @@ function startGame(gameToStart) {
         crntButtonChecks = () => game.crntButtonChecks();
         crntOnPressKeybinds = () => game.crntOnPressKeybinds();
         sounds.titleScreen.stop();
-        sounds.mainLoop.loop();
+        //sounds.mainLoop.loop();
     }
     else {
         console.warn('Warning: Attempted to start null game');
         console.log('An error most likely occured in saveAndLoad.js ' +
         'due to an incompatible version');
-
-        var canDelete = confirm('Warning: cannot load saved game ' + 
-            'due to an incompatible version. Start new game and delete old one?');
-        if (canDelete) startNewGame
     }
 }
 

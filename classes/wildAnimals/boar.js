@@ -28,7 +28,7 @@ class Boar extends WildAnimal {
             onDamageTaken : 'grunt'
         };
 
-        super(name, positionCm, sizeCm, moveSpeedCm, 0, gravityStrength, imageNames,
+        super(name, positionCm, sizeCm, moveSpeedCm, 0, gravityStrength, true, imageNames,
             maxHealth, maxStamina, staminaRechargeRate, characterDetectDist,
             attackTool, true, wildAnimalOnDieFuncs.boar, soundNames);
         

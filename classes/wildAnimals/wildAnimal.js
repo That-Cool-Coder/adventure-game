@@ -4,13 +4,15 @@ const wildAnimalSpecies = [
 ];
 
 class WildAnimal extends Character {
-    constructor(name, positionCm, sizeCm, moveSpeedCm, jumpStrength, gravityStrength, imageNames,
-        maxHealth, maxStamina, staminaRechargeRate, characterDetectDist,
-        attackTool, alive, onDieFunc, soundNames) {
+    constructor(name, positionCm, sizeCm,
+        moveSpeedCm, jumpStrength, gravityStrength, collidesWithCharacter,
+        imageNames, maxHealth, maxStamina, staminaRechargeRate, 
+        characterDetectDist, attackTool, alive, onDieFunc, soundNames) {
 
         super(name, positionCm, sizeCm, moveSpeedCm, jumpStrength, gravityStrength, imageNames, maxHealth, 0,
             maxStamina, staminaRechargeRate, alive, onDieFunc, attackTool, null, null, soundNames);
 
+        this.collidesWithCharacter = collidesWithCharacter;
         this.characterDetectDist = characterDetectDist;
 
         addClassName(this, 'WildAnimal');
@@ -20,17 +22,27 @@ class WildAnimal extends Character {
         var blocks = this.getNearbyBlocks(mapSections);
 
         this.fall(blocks);
+
+        // Chase character
         if (this.nearCharacter(characterToChase)) {
             this.chaseCharacter(characterToChase);
         }
-        if (this.touchingCharacter(characterToChase)) {
-            this.moveAwayFromBlock(characterToChase);
+
+        // Collide with character
+        if (this.collidesWithCharacter) {
+            if (this.touchingCharacter(characterToChase)) {
+                // Use block collision code to see if touching the character...
+                // ...because the character has the same attributes as a block
+                this.moveAwayFromBlock(characterToChase);
+            }
         }
 
+        // Attack character
         if (this.attackToolTouchingCharacter(characterToChase)) {
             this.attackCharacter(characterToChase);
         }
-
+        
+        // Do velocity
         this.positionCm.x += this.velocityCm.x;
         this.positionCm.y += this.velocityCm.y;
 

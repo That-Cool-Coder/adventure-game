@@ -499,7 +499,7 @@ class Game {
         this.hud.inventoryButton.setBgColor(this.mainThemeColor);
 
         this.hud.controlShowButton = new SimpleButton(new p5.Vector(widthCm - 340, 10),
-            new p5.Vector(80, 30), 'Controls', 20, scaleMult);
+            new p5.Vector(80, 30), 'Help', 20, scaleMult);
         this.hud.controlShowButton.setBgColor(this.mainThemeColor);
 
         // Cheat button is not in production code!

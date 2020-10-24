@@ -52,8 +52,6 @@ const soundUrls = {
     clang : 'sounds/clang.wav'
 };
 
-// a random comment to make git commit
-
 var images = {}; // object to hold all of the images used in the game (in p5-format)
 
 var sounds = {}; // object to hold all of the sounds used in the game (in p5-format)

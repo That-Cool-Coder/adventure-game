@@ -42,7 +42,7 @@ const imageUrls = {
 };
 
 const soundUrls = {
-    mainLoop : 'sounds/mainLoop.mp3',
+    mainLoop : 'sounds/mainLoop.wav',
     titleScreen : 'sounds/titleScreen.mp3',
     boarDie : 'sounds/animals/boarDie.mp3',
     grunt : 'sounds/grunt.wav',
